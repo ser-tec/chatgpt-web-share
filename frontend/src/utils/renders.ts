@@ -12,7 +12,7 @@ const t = i18n.global.t as any;
 
 export const dropdownRenderer = (
   conversation: BaseConversationSchema,
-  handleDeleteConversation: (conversation_id?: string) => void,
+  //handleDeleteConversation: (conversation_id?: string) => void,
   handleArchiveConversations: (conversation_id?: string) => void,
   handleChangeConversationTitle: (conversation_id?: string) => void
 ) =>
@@ -21,13 +21,13 @@ export const dropdownRenderer = (
     {
       trigger: 'hover',
       options: [
-        {
+        /*{
           label: t('commons.delete'),
           key: 'delete',
           props: {
             onClick: () => handleDeleteConversation(conversation.conversation_id),
           },
-        },
+        },*/        
         {
           label: t('commons.rename'),
           key: 'rename',

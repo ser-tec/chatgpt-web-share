@@ -94,7 +94,8 @@ const menuOptions = computed<MenuOption[]>(() => {
       label: () => h(NEllipsis, null, { default: () => conversation.title }),
       key: conversation.conversation_id,
       disabled: props.loading == true,
-      extra: () => dropdownRenderer(conversation, handleDeleteConversation, handleArchiveConversations, handleChangeConversationTitle),
+      extra: () => dropdownRenderer(conversation, handleArchiveConversations, handleChangeConversationTitle),
+      //extra: () => dropdownRenderer(conversation, handleDeleteConversation, handleArchiveConversations, handleChangeConversationTitle),
     } as MenuOption;
   });
   if (results && conversationStore.newConversation) {
@@ -114,7 +115,7 @@ const handleArchiveConversations = (conversation_id: string | undefined) => {
       assignConversationToUserApi(conversation_id, username)
         .then(() => {
           Message.success(t('tips.success'));
-          //refreshData();
+          fetchConversationHistory(conversation_id);
           resolve(true);
         })
         .catch((err) => {
