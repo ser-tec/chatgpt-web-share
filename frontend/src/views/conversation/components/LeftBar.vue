@@ -118,7 +118,7 @@ const handleArchiveConversations = (conversation_id: string | undefined) => {
   if (conversation_id) {
     return new Promise((resolve, reject) => {
       assignConversationToUserApi(conversation_id, username)
-        .then(() => {
+        .then(async () => {
           Message.success(t('tips.success'));
           await refreshData();
           resolve(true);
