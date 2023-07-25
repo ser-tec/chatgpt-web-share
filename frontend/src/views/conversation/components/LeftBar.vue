@@ -109,19 +109,20 @@ const menuOptions = computed<MenuOption[]>(() => {
 
 const handleAssignConversations = (conversation_id: string | undefined) => {
   const username = "backup";
-  if (!conversation_id) 
-  return new Promise((resolve, reject) => {
-    assignConversationToUserApi(conversation_id, username)
-      .then(() => {
-        Message.success(t('tips.success'));
-        //refreshData();
-        resolve(true);
-      })
-      .catch((err) => {
-        Message.error(t('tips.failed') + ': ' + err);
-        reject(err);
-      });
-  });
+  if (conversation_id) {
+    return new Promise((resolve, reject) => {
+      assignConversationToUserApi(conversation_id, username)
+        .then(() => {
+          Message.success(t('tips.success'));
+          //refreshData();
+          resolve(true);
+        })
+        .catch((err) => {
+          Message.error(t('tips.failed') + ': ' + err);
+          reject(err);
+        });
+    });
+  }
 };
 
 const handleDeleteConversation = (conversation_id: string | undefined) => {
