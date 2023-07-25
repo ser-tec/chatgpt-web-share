@@ -43,6 +43,10 @@ import { BaseConversationSchema } from '@/types/schema';
 import { dropdownRenderer, popupChangeConversationTitleDialog } from '@/utils/renders';
 import { Dialog, Message } from '@/utils/tips';
 
+import {
+  assignConversationToUserApi,
+} from '@/api/conv';
+
 import StatusCard from './StatusCard.vue';
 
 const { t } = useI18n();
@@ -90,7 +94,7 @@ const menuOptions = computed<MenuOption[]>(() => {
       label: () => h(NEllipsis, null, { default: () => conversation.title }),
       key: conversation.conversation_id,
       disabled: props.loading == true,
-      extra: () => dropdownRenderer(conversation, handleDeleteConversation, handleChangeConversationTitle),
+      extra: () => dropdownRenderer(conversation, handleDeleteConversation, handleChangeConversationTitle, handleAssignConversations),
     } as MenuOption;
   });
   if (results && conversationStore.newConversation) {
@@ -102,6 +106,22 @@ const menuOptions = computed<MenuOption[]>(() => {
   }
   return results;
 });
+
+const handleAssignConversations = (conversation_id: string | undefined) => {
+  const username = "backup";
+  return new Promise((resolve, reject) => {
+    assignConversationToUserApi(conversation_id, username)
+      .then(() => {
+        Message.success(t('tips.success'));
+        //refreshData();
+        resolve(true);
+      })
+      .catch((err) => {
+        Message.error(t('tips.failed') + ': ' + err);
+        reject(err);
+      });
+  });
+};
 
 const handleDeleteConversation = (conversation_id: string | undefined) => {
   if (!conversation_id) return;
