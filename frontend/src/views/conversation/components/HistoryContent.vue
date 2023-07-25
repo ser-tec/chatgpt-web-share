@@ -12,8 +12,8 @@
         <n-text>
           {{ $t('commons.currentConversationModel') }}:
           {{ getChatModelNameTrans(convHistory?.current_model || null) }} ({{ t(`sources.${convHistory?.source}`) }})
+          <br/>
         </n-text>
-        <br/>
         <div class="warning">
           {{ $t('commons.sensitiveinfowarning') }}
         </div>
