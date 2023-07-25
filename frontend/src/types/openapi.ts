@@ -400,6 +400,16 @@ export interface components {
     /** CommonSetting */
     CommonSetting: {
       /**
+       * Sync Conversations On Startup 
+       * @default true
+       */
+      sync_conversations_on_startup?: boolean;
+      /**
+       * Sync Conversations Regularly 
+       * @default false
+       */
+      sync_conversations_regularly?: boolean;
+      /**
        * Print Sql 
        * @default false
        */
@@ -419,16 +429,6 @@ export interface components {
        * @default password
        */
       initial_admin_user_password?: string;
-      /**
-       * Sync Conversations On Startup 
-       * @default true
-       */
-      sync_conversations_on_startup?: boolean;
-      /**
-       * Sync Conversations Regularly 
-       * @default true
-       */
-      sync_conversations_regularly?: boolean;
     };
     /** CommonStatusSchema */
     CommonStatusSchema: {
@@ -450,30 +450,54 @@ export interface components {
       /**
        * Openai Web 
        * @default {
-       *   "is_plus_account": false,
+       *   "enabled": true,
+       *   "is_plus_account": true,
        *   "common_timeout": 10,
-       *   "ask_timeout": 600
+       *   "ask_timeout": 600,
+       *   "enabled_models": [
+       *     "gpt_3_5",
+       *     "gpt_4",
+       *     "gpt_4_browsing",
+       *     "gpt_4_plugins"
+       *   ],
+       *   "model_code_mapping": {
+       *     "gpt_3_5": "text-davinci-002-render-sha",
+       *     "gpt_3_5_mobile": "text-davinci-002-render-sha-mobile",
+       *     "gpt_4": "gpt-4",
+       *     "gpt_4_mobile": "gpt-4-mobile",
+       *     "gpt_4_browsing": "gpt-4-browsing",
+       *     "gpt_4_plugins": "gpt-4-plugins"
+       *   }
        * }
        */
       openai_web?: components["schemas"]["OpenaiWebChatGPTSetting"];
       /**
        * Openai Api 
        * @default {
+       *   "enabled": true,
        *   "openai_base_url": "https://api.openai.com/v1/",
        *   "connect_timeout": 10,
-       *   "read_timeout": 20
+       *   "read_timeout": 20,
+       *   "enabled_models": [
+       *     "gpt_3_5",
+       *     "gpt_4"
+       *   ],
+       *   "model_code_mapping": {
+       *     "gpt_3_5": "gpt-3.5-turbo",
+       *     "gpt_4": "gpt-4"
+       *   }
        * }
        */
       openai_api?: components["schemas"]["OpenaiApiSetting"];
       /**
        * Common 
        * @default {
+       *   "sync_conversations_on_startup": true,
+       *   "sync_conversations_regularly": false,
        *   "print_sql": false,
        *   "create_initial_admin_user": true,
        *   "initial_admin_user_username": "admin",
-       *   "initial_admin_user_password": "password",
-       *   "sync_conversations_on_startup": true,
-       *   "sync_conversations_regularly": true
+       *   "initial_admin_user_password": "password"
        * }
        */
       common?: components["schemas"]["CommonSetting"];
@@ -580,13 +604,6 @@ export interface components {
        * @default false
        */
       run_migration?: boolean;
-    };
-    /** ErrorModel */
-    ErrorModel: {
-      /** Detail */
-      detail: string | ({
-        [key: string]: string | undefined;
-      });
     };
     /** HTTPValidationError */
     HTTPValidationError: {
@@ -801,21 +818,23 @@ export interface components {
        */
       update_time?: string;
     };
-    /** OpenaiApiPerModelAskCount */
+    /**
+     * OpenaiApiPerModelAskCount 
+     * @default {
+     *   "gpt_3_5": 0,
+     *   "gpt_4": 0
+     * }
+     */
     OpenaiApiPerModelAskCount: {
-      /**
-       * Gpt 3 5 
-       * @default 0
-       */
-      gpt_3_5?: number;
-      /**
-       * Gpt 4 
-       * @default 0
-       */
-      gpt_4?: number;
+      [key: string]: number | undefined;
     };
     /** OpenaiApiSetting */
     OpenaiApiSetting: {
+      /**
+       * Enabled 
+       * @default true
+       */
+      enabled?: boolean;
       /**
        * Openai Base Url 
        * @default https://api.openai.com/v1/
@@ -833,6 +852,23 @@ export interface components {
        * @default 20
        */
       read_timeout?: number;
+      /**
+       * @default [
+       *   "gpt_3_5",
+       *   "gpt_4"
+       * ]
+       */
+      enabled_models?: (components["schemas"]["OpenaiApiChatModels"])[];
+      /**
+       * Model Code Mapping 
+       * @default {
+       *   "gpt_3_5": "gpt-3.5-turbo",
+       *   "gpt_4": "gpt-4"
+       * }
+       */
+      model_code_mapping?: {
+        [key: string]: string | undefined;
+      };
     };
     /** OpenaiApiSourceSettingSchema */
     OpenaiApiSourceSettingSchema: {
@@ -931,8 +967,13 @@ export interface components {
     /** OpenaiWebChatGPTSetting */
     OpenaiWebChatGPTSetting: {
       /**
+       * Enabled 
+       * @default true
+       */
+      enabled?: boolean;
+      /**
        * Is Plus Account 
-       * @default false
+       * @default true
        */
       is_plus_account?: boolean;
       /** Chatgpt Base Url */
@@ -949,6 +990,29 @@ export interface components {
        * @default 600
        */
       ask_timeout?: number;
+      /**
+       * @default [
+       *   "gpt_3_5",
+       *   "gpt_4",
+       *   "gpt_4_browsing",
+       *   "gpt_4_plugins"
+       * ]
+       */
+      enabled_models?: (components["schemas"]["OpenaiWebChatModels"])[];
+      /**
+       * Model Code Mapping 
+       * @default {
+       *   "gpt_3_5": "text-davinci-002-render-sha",
+       *   "gpt_3_5_mobile": "text-davinci-002-render-sha-mobile",
+       *   "gpt_4": "gpt-4",
+       *   "gpt_4_mobile": "gpt-4-mobile",
+       *   "gpt_4_browsing": "gpt-4-browsing",
+       *   "gpt_4_plugins": "gpt-4-plugins"
+       * }
+       */
+      model_code_mapping?: {
+        [key: string]: string | undefined;
+      };
     };
     /** OpenaiWebChatMessage */
     OpenaiWebChatMessage: {
@@ -1233,38 +1297,19 @@ export interface components {
        */
       update_time?: string;
     };
-    /** OpenaiWebPerModelAskCount */
+    /**
+     * OpenaiWebPerModelAskCount 
+     * @default {
+     *   "gpt_3_5": 0,
+     *   "gpt_3_5_mobile": 0,
+     *   "gpt_4": 0,
+     *   "gpt_4_mobile": 0,
+     *   "gpt_4_browsing": 0,
+     *   "gpt_4_plugins": 0
+     * }
+     */
     OpenaiWebPerModelAskCount: {
-      /**
-       * Gpt 3 5 
-       * @default 0
-       */
-      gpt_3_5?: number;
-      /**
-       * Gpt 3 5 Mobile 
-       * @default 0
-       */
-      gpt_3_5_mobile?: number;
-      /**
-       * Gpt 4 
-       * @default 0
-       */
-      gpt_4?: number;
-      /**
-       * Gpt 4 Mobile 
-       * @default 0
-       */
-      gpt_4_mobile?: number;
-      /**
-       * Gpt 4 Browsing 
-       * @default 0
-       */
-      gpt_4_browsing?: number;
-      /**
-       * Gpt 4 Plugins 
-       * @default 0
-       */
-      gpt_4_plugins?: number;
+      [key: string]: number | undefined;
     };
     /** OpenaiWebSourceSettingSchema */
     OpenaiWebSourceSettingSchema: {
@@ -1544,14 +1589,6 @@ export interface operations {
           "application/json": string;
         };
       };
-      /** @description No Content */
-      204: never;
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["ErrorModel"];
-        };
-      };
       /** @description Validation Error */
       422: {
         content: {
@@ -1569,10 +1606,6 @@ export interface operations {
           "application/json": string;
         };
       };
-      /** @description No Content */
-      204: never;
-      /** @description Missing token or inactive user. */
-      401: never;
     };
   };
   register_auth_register_post: {
