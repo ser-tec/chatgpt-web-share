@@ -12,11 +12,12 @@
         <n-text>
           {{ $t('commons.currentConversationModel') }}:
           {{ getChatModelNameTrans(convHistory?.current_model || null) }} ({{ t(`sources.${convHistory?.source}`) }})
-          <br/>
         </n-text>
+        <n-text>
         <div class="warning">
           {{ $t('commons.sensitiveinfowarning') }}
         </div>
+       </n-text>
         <n-button v-if="_fullscreen" class="absolute left-4 hide-in-print" text @click="toggleFullscreenHistory">
           <template #icon>
             <n-icon>
