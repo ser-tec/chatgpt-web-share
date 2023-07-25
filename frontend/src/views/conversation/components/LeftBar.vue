@@ -45,22 +45,19 @@ import { Dialog, Message } from '@/utils/tips';
 
 import {
   assignConversationToUserApi,
-  getAdminAllConversationsApi,
 } from '@/api/conv';
-
-const refreshData = () => {
-  getAdminAllConversationsApi(false).then((res) => {
-    data.value = res.data;
-  });
-};
-
-refreshData();
 
 import StatusCard from './StatusCard.vue';
 
 const { t } = useI18n();
 
 const conversationStore = useConversationStore();
+
+// Define your refreshData function
+const refreshData = async () => {
+  // Fetch all conversations from the server again
+  await conversationStore.fetchAllConversations();
+};
 
 const props = defineProps<{
   loading: boolean;
@@ -123,7 +120,7 @@ const handleArchiveConversations = (conversation_id: string | undefined) => {
       assignConversationToUserApi(conversation_id, username)
         .then(() => {
           Message.success(t('tips.success'));
-          refreshData();
+          await refreshData();
           resolve(true);
         })
         .catch((err) => {
