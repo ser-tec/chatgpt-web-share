@@ -13,11 +13,6 @@
           {{ $t('commons.currentConversationModel') }}:
           {{ getChatModelNameTrans(convHistory?.current_model || null) }} ({{ t(`sources.${convHistory?.source}`) }})
         </n-text>
-        <n-text>
-        <div class="warning">
-          {{ $t('commons.sensitiveinfowarning') }}
-        </div>
-       </n-text>
         <n-button v-if="_fullscreen" class="absolute left-4 hide-in-print" text @click="toggleFullscreenHistory">
           <template #icon>
             <n-icon>
@@ -25,6 +20,9 @@
             </n-icon>
           </template>
         </n-button>
+      </div>
+      <div class="flex justify-center py-4 relative warning" :style="{ backgroundColor: themeVars.baseColor }">
+          {{ $t('commons.sensitiveinfowarning') }}
       </div>
       <div
         v-if="convOpenaiWebPluginIds && convOpenaiWebPluginIds.length > 0"
