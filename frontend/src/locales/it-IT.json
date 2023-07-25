@@ -53,6 +53,7 @@
     "shaModel": "Predefinito",
     "paidModel": "Legacy",
     "currentConversationModel": "Modello attualmente utilizzato in questa conversazione",
+    "sensitiveinfowarning": "Avviso: NON INSERIRE alcuna informazione sensibile o personale come PASSWORD, informazioni di identificazione personale o segreti commerciali",
     "availableModels": "Modelli disponibili",
     "maxConversationCount": "Numero massimo di conversazioni",
     "availableTotalAskCount": "Conteggio richieste disponibili",
