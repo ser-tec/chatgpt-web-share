@@ -13,7 +13,7 @@ const t = i18n.global.t as any;
 export const dropdownRenderer = (
   conversation: BaseConversationSchema,
   handleDeleteConversation: (conversation_id?: string) => void,
-  handleAssignConversations: (conversation_id?: string) => void, // Cambia il nome qui
+  handleArchiveConversations: (conversation_id?: string) => void,
   handleChangeConversationTitle: (conversation_id?: string) => void
 ) =>
   h(
@@ -33,6 +33,13 @@ export const dropdownRenderer = (
           key: 'rename',
           props: {
             onClick: () => handleChangeConversationTitle(conversation.conversation_id),
+          },
+        },
+        {
+          label: t('commons.archive'),
+          key: 'archive',
+          props: {
+            onClick: () => handleArchiveConversations(conversation.conversation_id),
           },
         },
       ],
