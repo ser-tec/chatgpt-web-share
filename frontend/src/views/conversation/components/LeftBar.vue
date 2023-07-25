@@ -94,7 +94,7 @@ const menuOptions = computed<MenuOption[]>(() => {
       label: () => h(NEllipsis, null, { default: () => conversation.title }),
       key: conversation.conversation_id,
       disabled: props.loading == true,
-      extra: () => dropdownRenderer(conversation, handleDeleteConversation, handleChangeConversationTitle, handleAssignConversations),
+      extra: () => dropdownRenderer(conversation, handleDeleteConversation, handleAssignConversations, handleChangeConversationTitle),
     } as MenuOption;
   });
   if (results && conversationStore.newConversation) {
@@ -109,6 +109,7 @@ const menuOptions = computed<MenuOption[]>(() => {
 
 const handleAssignConversations = (conversation_id: string | undefined) => {
   const username = "backup";
+  if (!conversation_id) 
   return new Promise((resolve, reject) => {
     assignConversationToUserApi(conversation_id, username)
       .then(() => {

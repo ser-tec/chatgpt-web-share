@@ -13,6 +13,7 @@ const t = i18n.global.t as any;
 export const dropdownRenderer = (
   conversation: BaseConversationSchema,
   handleDeleteConversation: (conversation_id?: string) => void,
+  handleAssignConversations: (conversation_id?: string) => void, // Cambia il nome qui
   handleChangeConversationTitle: (conversation_id?: string) => void
 ) =>
   h(
