@@ -45,7 +45,16 @@ import { Dialog, Message } from '@/utils/tips';
 
 import {
   assignConversationToUserApi,
+  getAdminAllConversationsApi,
 } from '@/api/conv';
+
+const refreshData = () => {
+  getAdminAllConversationsApi(false).then((res) => {
+    data.value = res.data;
+  });
+};
+
+refreshData();
 
 import StatusCard from './StatusCard.vue';
 
@@ -95,7 +104,6 @@ const menuOptions = computed<MenuOption[]>(() => {
       key: conversation.conversation_id,
       disabled: props.loading == true,
       extra: () => dropdownRenderer(conversation, handleArchiveConversations, handleChangeConversationTitle),
-      //extra: () => dropdownRenderer(conversation, handleDeleteConversation, handleArchiveConversations, handleChangeConversationTitle),
     } as MenuOption;
   });
   if (results && conversationStore.newConversation) {
@@ -115,7 +123,7 @@ const handleArchiveConversations = (conversation_id: string | undefined) => {
       assignConversationToUserApi(conversation_id, username)
         .then(() => {
           Message.success(t('tips.success'));
-          fetchConversationHistory(conversation_id);
+          refreshData();
           resolve(true);
         })
         .catch((err) => {
@@ -124,34 +132,6 @@ const handleArchiveConversations = (conversation_id: string | undefined) => {
         });
     });
   }
-};
-
-const handleDeleteConversation = (conversation_id: string | undefined) => {
-  if (!conversation_id) return;
-  const d = Dialog.info({
-    title: t('commons.confirmDialogTitle'),
-    content: t('tips.deleteConversation'),
-    positiveText: t('commons.confirm'),
-    negativeText: t('commons.cancel'),
-    onPositiveClick: () => {
-      d.loading = true;
-      return new Promise((resolve) => {
-        conversationStore
-          .deleteConversation(conversation_id)
-          .then(() => {
-            Message.success(t('tips.deleteConversationSuccess'));
-            if (convId.value == conversation_id) convId.value = null;
-          })
-          .catch(() => {
-            Message.error(t('tips.deleteConversationFailed'));
-          })
-          .finally(() => {
-            d.loading = false;
-            resolve(true);
-          });
-      });
-    },
-  });
 };
 
 const handleChangeConversationTitle = (conversation_id: string | undefined) => {
