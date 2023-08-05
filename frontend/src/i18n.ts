@@ -11,7 +11,7 @@ let i18n: I18n;
 const init = () => {
   i18n = createI18n({
     legacy: false,
-    locale: useStorage('language', 'zh-CN').value,
+    locale: useStorage('language', 'it-IT').value,
     messages: {
       'en-US': {
         ...EN,
