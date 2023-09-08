@@ -21,7 +21,7 @@
           </template>
         </n-button>
       </div>
-      <div
+      <div>
       <div class="flex justify-center py-4 relative warning" :style="{ backgroundColor: themeVars.baseColor }">
           {{ $t('commons.sensitiveinfowarning') }}
       </div>
