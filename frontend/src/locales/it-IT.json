@@ -53,6 +53,7 @@
     "shaModel": "Predefinito",
     "paidModel": "Legacy",
     "currentConversationModel": "Modello attualmente utilizzato in questa conversazione",
+    "sensitiveinfowarning": "Avviso: NON INSERIRE alcuna informazione sensibile o personale come PASSWORD, informazioni di identificazione personale o segreti commerciali - NOTA non è preciso con le operazioni matematiche",																																								 
     "availableModels": "Modelli disponibili",
     "maxConversationCount": "Numero massimo di conversazioni",
     "availableTotalAskCount": "Conteggio richieste disponibili",
@@ -104,7 +105,7 @@
     "sumOfNormalAskDuration": "Tempo totale trascorso in conversazioni ordinarie",
     "abortRequest": "Annulla richiesta",
     "continueGenerating": "Continua a generare",
-    "clearAllConversations": "Cancella tutte le conversazioni",												   
+    "clearAllConversations": "Cancella tutte le conversazioni",
     "readyToClearAllConversations": "Sei sicuro di voler cancellare tutte le conversazioni?",
     "sendKey": "Invia tasto breve",
     "preferences": "Preferenze",
@@ -171,6 +172,7 @@
     "expand": "espandi",
     "export": "esporta",
     "import": "importa"
+    "useCodeInterpreter": "Utilizzo dell'interprete di codice"
   },
   "errors": {
     "403": "Errore 403: accesso negato",
@@ -212,7 +214,7 @@
       "unkown": "Errore sconosciuto di OpenAI, contatta l'amministratore"
     },
     "unknown": "errore sconosciuto"
-  },								
+  },
   "tips": {
     "loginExpired": "Accesso scaduto. Vuoi andare alla pagina di accesso?",
     "pleaseEnterUsername": "Inserisci il nome utente",
@@ -272,7 +274,7 @@
       "loadingPlugins": "Caricamento plugin...",
       "selectPlugins": "seleziona plugin"
     },
-    "openaiWebPluginsLengthMoreThan3": "Il numero di plugin non può superare 3"																			  
+    "openaiWebPluginsLengthMoreThan3": "Il numero di plugin non può superare 3"
   },
   "labels": {
     "nickname": "Nickname",
@@ -330,6 +332,7 @@
     "gpt_4_mobile": "GPT-4 Mobile",
     "gpt_4_browsing": "GPT-4 Navigazione",
     "gpt_4_plugins": "GPT-4 Plug-in"
+    "gpt_4_code_interpreter": "GPT-4 Code Interpreter"
   },
   "sources": {
     "openai_web": "OpenAI Web",
