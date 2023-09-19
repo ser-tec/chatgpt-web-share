@@ -54,6 +54,7 @@
     "paidModel": "Legacy",
     "currentConversationModel": "Model currently used in this conversation",
     "availableModels": "Available Models",
+    "sensitiveinfowarning": "Warning: DO NOT ENTER any sensitive or personal information such as PASSWORDS, personally identifiable information, or trade secrets - NOTE it is not accurate with mathematical operations",																																								     
     "maxConversationCount": "Max number of conversations",
     "availableTotalAskCount": "Available Total Ask Count",
     "unlimited": "Unlimited",
