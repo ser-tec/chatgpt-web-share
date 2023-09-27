@@ -6,17 +6,14 @@ from fastapi_users_db_sqlalchemy import Integer
 from sqlalchemy import String, Enum, Boolean, ForeignKey, func, Float
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 
-from api.database.custom_types import GUID, Pydantic, UTCDateTime
+from api.database.custom_types import Pydantic, UTCDateTime, GUID
 from api.enums import OpenaiWebChatStatus, OpenaiWebChatModels, OpenaiApiChatModels, ChatSourceTypes
-from api.models.json import CustomOpenaiApiSettings
 from api.schemas import UserSettingSchema, OpenaiWebSourceSettingSchema, OpenaiApiSourceSettingSchema
 
 
 # declarative base class
 class Base(DeclarativeBase):
-    type_annotation_map = {
-        uuid.UUID: GUID,
-    }
+    pass
 
 
 class User(Base):
@@ -42,6 +39,7 @@ class User(Base):
     setting: Mapped["UserSetting"] = relationship("UserSetting", back_populates="user", lazy="joined",
                                                   cascade="save-update, merge, delete, delete-orphan")
     conversations: Mapped[List["BaseConversation"]] = relationship("BaseConversation", back_populates="user")
+    uploaded_files: Mapped[List["UploadedFileInfo"]] = relationship("UploadedFileInfo", back_populates="uploader")
 
 
 class UserSetting(Base):
@@ -102,3 +100,18 @@ class OpenaiApiConversation(BaseConversation):
         Enum(OpenaiApiChatModels),
         default=None,
         use_existing_column=True)
+
+
+class UploadedFileInfo(Base):
+    __tablename__ = "uploaded_files"
+
+    id: Mapped[uuid.UUID] = mapped_column(GUID, primary_key=True, default=uuid.uuid4, comment="uuid")
+    original_filename: Mapped[str] = mapped_column(String(256), comment="原始文件名")
+    size: Mapped[int] = mapped_column(Integer, comment="文件大小(bytes)")
+    content_type: Mapped[Optional[str]] = mapped_column(String(256), comment="文件类型", nullable=True)
+    storage_path: Mapped[str] = mapped_column(String(1024), comment="文件在服务器的存储路径，相对于配置中的存储路径")
+    upload_time: Mapped[datetime] = mapped_column(UTCDateTime(timezone=True), default=datetime.utcnow,
+                                                  comment="上传日期")
+    uploader_id: Mapped[int] = mapped_column(ForeignKey("user.id"), comment="上传的用户id")
+    openai_file_id: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
+    uploader: Mapped["User"] = relationship(back_populates="uploaded_files")

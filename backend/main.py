@@ -13,13 +13,14 @@ from sqlalchemy import select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 import api.globals as g
-from api.database import create_db_and_tables, get_async_session_context, get_user_db_context, init_mongodb
+from api.database.sqlalchemy import initialize_db, get_async_session_context, get_user_db_context
+from api.database.mongodb import init_mongodb
 from api.enums import OpenaiWebChatStatus
 from api.exceptions import SelfDefinedException, UserAlreadyExists
 from api.middlewares import AccessLoggerMiddleware, StatisticsMiddleware
 from api.models.db import User
 from api.response import CustomJSONResponse, handle_exception_response
-from api.routers import users, conv, chat, system, status
+from api.routers import users, conv, chat, system, status, files
 from api.schemas import UserCreate, UserSettingSchema
 from api.sources import OpenaiWebChatManager
 from api.users import get_user_manager_context
@@ -46,6 +47,7 @@ app.include_router(conv.router)
 app.include_router(chat.router)
 app.include_router(system.router)
 app.include_router(status.router)
+app.include_router(files.router)
 
 # 解决跨站问题
 app.add_middleware(
@@ -74,7 +76,7 @@ async def validation_exception_handler(request, exc):
 
 @app.on_event("startup")
 async def on_startup():
-    await create_db_and_tables()
+    await initialize_db()
     await init_mongodb()
 
     g.startup_time = time.time()
