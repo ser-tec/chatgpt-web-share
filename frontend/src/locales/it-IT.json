@@ -347,7 +347,8 @@
     "rate_limits": "Definisce il numero massimo di conversazioni che un utente può avviare entro un certo intervallo di tempo e la priorità viene calcolata da intervalli di tempo più piccoli a intervalli più grandi.",
     "openai_web_installed_plugins": "Note: Only the plugins enabled here can be selected when using GPT-4 Plugin!",
     "config": {
-      "enabled_models": "Imposta quali modelli sono abilitati a livello globale. I modelli che non sono abilitati qui non saranno disponibili per tutti gli account."
+      "enabled_models": "Imposta quali modelli sono abilitati a livello globale. I modelli che non sono abilitati qui non saranno disponibili per tutti gli account.",
+      "file_upload_strategy": "Determina come caricare i file quando si utilizza il modello di interprete del codice. Consulta la documentazione per i dettagli"
     }
   }
 }
