@@ -21,8 +21,6 @@ default_openai_web_model_code_mapping = {
 
 
 class CommonSetting(BaseModel):
-    sync_conversations_on_startup: bool = True
-    sync_conversations_regularly: bool = False
     print_sql: bool = False
     create_initial_admin_user: bool = True
     initial_admin_user_username: str = 'admin'
@@ -38,7 +36,8 @@ class CommonSetting(BaseModel):
 class HttpSetting(BaseModel):
     host: str = '127.0.0.1'
     port: int = Field(8000, ge=1, le=65535)
-    cors_allow_origins: list[str] = ['http://localhost', 'http://127.0.0.1']
+    cors_allow_origins: list[str] = ['http://localhost:8000', 'http://localhost:5173', 'http://127.0.0.1:8000',
+                                     'http://127.0.0.1:5173']
 
 
 class DataSetting(BaseModel):
@@ -57,9 +56,8 @@ class DataSetting(BaseModel):
 
 class AuthSetting(BaseModel):
     jwt_secret: str = 'MODIFY_THIS_TO_RANDOM_SECURE_STRING'
-    jwt_lifetime_seconds: int = Field(86400, ge=1)
-    cookie_max_age: int = Field(86400, ge=1)
-    cookie_name: str = 'cws_user_auth'
+    jwt_lifetime_seconds: int = Field(3 * 24 * 3600, ge=1)
+    cookie_max_age: int = Field(3 * 24 * 3600, ge=1)
     user_secret: str = 'MODIFY_THIS_TO_ANOTHER_RANDOM_SECURE_STRING'
 
 
@@ -70,7 +68,11 @@ class OpenaiWebChatGPTSetting(BaseModel):
     proxy: Optional[str] = None
     common_timeout: int = Field(10, ge=1)  # connect, read, write
     ask_timeout: int = Field(600, ge=1)
-    enabled_models: list[OpenaiWebChatModels] = ["gpt_3_5", "gpt_4", "gpt_4_code_interpreter", "gpt_4_plugins"]
+    sync_conversations_on_startup: bool = True
+    sync_conversations_schedule: bool = False
+    sync_conversations_schedule_interval_hours: int = Field(12, ge=1)
+    enabled_models: list[OpenaiWebChatModels] = ["gpt_3_5", "gpt_4", "gpt_4_code_interpreter", "gpt_4_plugins",
+                                                 "gpt_4_browsing"]
     model_code_mapping: dict[OpenaiWebChatModels, str] = default_openai_web_model_code_mapping
     file_upload_strategy: OpenaiWebFileUploadStrategyOption = OpenaiWebFileUploadStrategyOption.browser_upload_only
 

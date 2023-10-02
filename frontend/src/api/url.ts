@@ -18,9 +18,16 @@ enum ApiUrl {
   SystemRequestStatistics = '/system/stats/request',
   SystemAskStatistics = '/system/stats/ask',
   ServerLogs = '/system/logs/server',
+  SystemActionSyncOpenaiWebConversations = '/system/action/sync-openai-web-conv',
 
   SystemConfig = '/system/config',
   SystemCredentials = '/system/credentials',
+
+  FilesLocalUpload = '/files/local/upload',
+  FilesLocalDownload = '/files/local/download',
+  FilesOpenaiWebUploadStart = '/files/openai-web/upload-start',
+  FilesOpenaiWebUploadComplete = '/files/openai-web/upload-complete',
+  FilesLocalUploadToOpenaiWeb = '/files/local/upload-to-openai-web',
 }
 
 export default ApiUrl;

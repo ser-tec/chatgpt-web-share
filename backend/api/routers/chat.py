@@ -17,6 +17,7 @@ from websockets.exceptions import ConnectionClosed
 from api.conf import Config
 from api.database.sqlalchemy import get_async_session_context
 from api.enums import OpenaiWebChatStatus, ChatSourceTypes, OpenaiWebChatModels, OpenaiApiChatModels
+from api.enums.options import OpenaiWebFileUploadStrategyOption
 from api.exceptions import InternalException, InvalidParamsException, OpenaiException
 from api.models.db import OpenaiWebConversation, User, BaseConversation
 from api.models.doc import OpenaiWebChatMessage, OpenaiApiChatMessage, OpenaiWebConversationHistoryDocument, \
@@ -205,6 +206,12 @@ async def check_limits(user: UserReadAdmin, ask_request: AskRequest):
         # await websocket.close(1008, "errors.maxConversationCountReached")
         raise WebsocketInvalidAskException("errors.maxConversationCountReached")
 
+    # 判断是否允许使用附件
+    if ask_request.openai_web_attachments and len(ask_request.openai_web_attachments) > 0:
+        if ask_request.model != OpenaiWebChatModels.gpt_4_code_interpreter or \
+                config.openai_web.file_upload_strategy == OpenaiWebFileUploadStrategyOption.disable_upload:
+            raise WebsocketInvalidAskException("errors.attachmentsNotAllowed")
+
 
 def check_message(msg: str):
     # 检查消息中的敏感信息
@@ -321,7 +328,8 @@ async def chat(websocket: WebSocket):
                                       conversation_id=ask_request.conversation_id,
                                       parent_id=ask_request.parent,
                                       model=model,
-                                      plugin_ids=ask_request.openai_web_plugin_ids):
+                                      plugin_ids=ask_request.openai_web_plugin_ids,
+                                      attachments=ask_request.openai_web_attachments):
             has_got_reply = True
 
             try:
@@ -364,7 +372,9 @@ async def chat(websocket: WebSocket):
             401: "errors.openai.401",
             403: "errors.openai.403",
             404: "errors.openai.404",
+            418: "errors.openai.418",
             429: "errors.openai.429",
+            500: "errors.openai.500",
         }
         if e.code in error_detail_map:
             tip = error_detail_map[e.code]
@@ -563,6 +573,6 @@ async def chat(websocket: WebSocket):
                 ask_time=ask_time,
             ).create()
 
-        websocket.scope["ask_websocket_close_code"] = websocket_code
-        websocket.scope["ask_websocket_close_reason"] = websocket_reason
-        await websocket.close(websocket_code, websocket_reason)
+    websocket.scope["ask_websocket_close_code"] = websocket_code
+    websocket.scope["ask_websocket_close_reason"] = websocket_reason
+    await websocket.close(websocket_code, websocket_reason)
