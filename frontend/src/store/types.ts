@@ -20,6 +20,8 @@ interface AppState {
   theme: any;
   language: RemovableRef<'zh-CN' | 'en-US' | string>;
   preference: RemovableRef<Preference>;
+  lastSelectedSource: RemovableRef<string | null>;
+  lastSelectedModel: RemovableRef<string | null>;
 }
 
 interface ConversationState {
@@ -34,9 +36,13 @@ type FileUploadGroup = {
   naiveUiFileIdToServerFileIdMap: Record<string, string>;
 }
 
+type ImageUploadGroup = FileUploadGroup & {
+  imageMetadataMap: Record<string, { width: number; height: number }>;  // 使用 server 端的文件 id 作为 key
+}
+
 interface FileState {
   attachments: FileUploadGroup;
-  images: FileUploadGroup;
+  images: ImageUploadGroup;
 }
 
 export type { AppState, ConversationState, FileState, UserState };
