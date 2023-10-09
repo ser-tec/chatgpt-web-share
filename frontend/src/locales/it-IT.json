@@ -172,7 +172,7 @@
     "expand": "espandi",
     "export": "esporta",
     "import": "importa",
-    "useCodeInterpreter": "Utilizzo dell'interprete di codice"
+    "useCodeInterpreter": "Utilizzo dell'interprete di codice",
     "emptyFileList": "L elenco dei file è vuoto",
     "selectFile": "Seleziona file",
     "viewAttachments": "Mostra {0} allegati",
@@ -219,7 +219,7 @@
       "500": "OpenAI server error (500 error),potrebbe darsi che il servizio OpenAI non funzioni o che il modello API sia cambiato, informa l amministratore",
       "unkown": "Errore sconosciuto di OpenAI, contatta l'amministratore"
     },
-    "unknown": "errore sconosciuto"
+    "unknown": "errore sconosciuto",
     "invalidRequest": "Richiesta non valida"
   },
   "tips": {
@@ -279,10 +279,10 @@
     "NewConversationForm": {
       "failedToGetPlugins": "Impossibile ottenere l'elenco dei plugin",
       "loadingPlugins": "Caricamento plugin...",
-      "selectPlugins": "seleziona plugin"
+      "selectPlugins": "seleziona plugin",
       "leaveBlankToGenerateTitle": "Lascia vuoto per generare automaticamente"
     },
-    "openaiWebPluginsLengthMoreThan3": "Il numero di plugin non può superare 3"
+    "openaiWebPluginsLengthMoreThan3": "Il numero di plugin non può superare 3",
     "dragFileHere": "Fai clic o trascina i file qui per caricarli",
     "dragImageHere": "Trascina qui le immagini per caricarle",
     "fileUploadRequirements": "Non caricare file contenenti informazioni sensibili; la dimensione del file non deve essere eccessivamente grande",
@@ -338,7 +338,7 @@
     "plugins": "plug-in",
     "config": {
       "enabled_models": "Abilità Modelli",
-      "model_code_mapping": "Model Code Mapping"
+      "model_code_mapping": "Model Code Mapping",
       "file_upload_strategy": "Strategia di caricamento file"													
     }
   },
