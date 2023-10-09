@@ -173,6 +173,11 @@
     "export": "esporta",
     "import": "importa",
     "useCodeInterpreter": "Utilizzo dell'interprete di codice"
+    "emptyFileList": "L elenco dei file è vuoto",
+    "selectFile": "Seleziona file",
+    "viewAttachments": "Mostra {0} allegati",
+    "modelDescriptions": "Descrizione",
+    "remain": "Conteggio domande disponibili"
   },
   "errors": {
     "403": "Errore 403: accesso negato",
@@ -211,9 +216,11 @@
       "403": "Autenticazione OpenAI non riuscita (errore 403), contatta l'amministratore",
       "404": "L'interfaccia OpenAI non esiste (errore 404), contatta l'amministratore",
       "429": "La richiesta all'interfaccia OpenAI è troppo frequente (errore 429), potrebbe essere stato superato il limite di utilizzo del modello, riprova più tardi",
+      "500": "OpenAI server error (500 error),potrebbe darsi che il servizio OpenAI non funzioni o che il modello API sia cambiato, informa l amministratore",
       "unkown": "Errore sconosciuto di OpenAI, contatta l'amministratore"
     },
     "unknown": "errore sconosciuto"
+    "invalidRequest": "Richiesta non valida"
   },
   "tips": {
     "loginExpired": "Accesso scaduto. Vuoi andare alla pagina di accesso?",
@@ -273,8 +280,17 @@
       "failedToGetPlugins": "Impossibile ottenere l'elenco dei plugin",
       "loadingPlugins": "Caricamento plugin...",
       "selectPlugins": "seleziona plugin"
+      "leaveBlankToGenerateTitle": "Lascia vuoto per generare automaticamente"
     },
     "openaiWebPluginsLengthMoreThan3": "Il numero di plugin non può superare 3"
+    "dragFileHere": "Fai clic o trascina i file qui per caricarli",
+    "dragImageHere": "Trascina qui le immagini per caricarle",
+    "fileUploadRequirements": "Non caricare file contenenti informazioni sensibili; la dimensione del file non deve essere eccessivamente grande",
+    "fileUploadSuccess": "File {0} caricato con successo",
+    "fileUploadFailed": "Caricamento del file {0} non riuscito",
+    "imageUploadRequirements": "È possibile caricare fino a 4 immagini",
+    "sandboxFileDownloadError": "Errore durante il download del file",
+    "sandboxFileNotFound": "File {0} non trovato, perché il percorso della sandbox è sbagliato o perché l'interprete è scaduto."
   },
   "labels": {
     "nickname": "Nickname",
@@ -323,6 +339,7 @@
     "config": {
       "enabled_models": "Abilità Modelli",
       "model_code_mapping": "Model Code Mapping"
+      "file_upload_strategy": "Strategia di caricamento file"													
     }
   },
   "models": {
@@ -330,9 +347,26 @@
     "gpt_3_5_mobile": "GPT-3.5 Mobile",
     "gpt_4": "GPT-4",
     "gpt_4_mobile": "GPT-4 Mobile",
-    "gpt_4_browsing": "GPT-4 Navigazione",
-    "gpt_4_plugins": "GPT-4 Plug-in",
-    "gpt_4_code_interpreter": "GPT-4 Code Interpreter"
+    "gpt_4_browsing": "Navigazione Web GPT-4",
+    "gpt_4_plugins": "Plugin GPT-4",
+    "gpt_4_code_interpreter": "Analisi avanzata dei dati GPT-4",
+    "gpt_4_dalle": "GPT-4 DALL·E 3"
+  },
+  "descrizioni del modello": {
+    "openai_api": {
+      "gpt_3_5": "Il modello più veloce, ottimo per la maggior parte delle attività quotidiane.",
+      "gpt_4": "Il modello più capace, ottimo per compiti che richiedono creatività e ragionamento avanzato. Relativamente lento."
+    },
+    "openai_web": {
+      "gpt_3_5": "Il modello più veloce, ottimo per la maggior parte delle attività quotidiane.",
+      "gpt_3_5_mobile": "Versione mobile di GPT-3.5. Non consigliato da utilizzare.",
+      "gpt_4": "Il modello più capace, ottimo per compiti che richiedono creatività e ragionamento avanzato. Relativamente lento.",
+      "gpt_4_browsing": "Un modello sperimentale che sa quando e come navigare in Internet.",
+      "gpt_4_plugins": "Un modello sperimentale che sa quando e come utilizzare i plugin.",
+      "gpt_4_mobile": "Versione mobile di GPT-4. Non consigliato da usare.",
+      "gpt_4_code_interpreter": "Un modello sperimentale in grado di risolvere compiti generando codice Python ed eseguendolo in un notebook Jupyter.\nPuoi caricare qualsiasi tipo di file e chiedere al modello di analizzarlo o produrre un nuovo file che puoi scaricare. ",
+      "gpt_4_dalle": "Prova GPT-4 con DALL·E 3 per generare immagini da descrizioni di testo naturali."
+    }
   },
   "sources": {
     "openai_web": "OpenAI Web",
@@ -349,6 +383,14 @@
     "config": {
       "enabled_models": "Imposta quali modelli sono abilitati a livello globale. I modelli che non sono abilitati qui non saranno disponibili per tutti gli account.",
       "file_upload_strategy": "Determina come caricare i file quando si utilizza il modello di interprete del codice. Consulta la documentazione per i dettagli"
+    }
+  },
+  "dialogo": {
+    "contenuto": {
+      "syncConversations": "Sei sicuro di voler sincronizzare tutte le conversazioni manualmente? \nIn questo modo verranno recuperate tutte le informazioni sulle conversazioni dall'account OpenAI e le conversazioni eliminate verranno contrassegnate come non valide."
+     },
+    "titolo": {
+      "syncConversations": "Sincronizza conversazioni"
     }
   }
 }
