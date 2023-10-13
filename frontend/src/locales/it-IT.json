@@ -53,8 +53,8 @@
     "shaModel": "Predefinito",
     "paidModel": "Legacy",
     "currentConversationModel": "Modello attualmente utilizzato in questa conversazione",
-    "sensitiveinfowarning": "Avviso: NON INSERIRE alcuna informazione sensibile o personale come PASSWORD, informazioni di identificazione personale o segreti commerciali - NOTA non è preciso con le operazioni matematiche",																																								 
     "availableModels": "Modelli disponibili",
+    "sensitiveinfowarning": "Avviso: NON INSERIRE alcuna informazione sensibile o personale come PASSWORD, informazioni di identificazione personale o segreti commerciali - NOTA non è preciso con le operazioni matematiche",																																								 
     "maxConversationCount": "Numero massimo di conversazioni",
     "availableTotalAskCount": "Conteggio richieste disponibili",
     "unlimited": "Illimitato",
@@ -208,7 +208,6 @@
     "httpError": "Errore HTTP",
     "internal": "Errore interno",
     "invalidParams": "Parametri non validi",
-    "noAvailableTotalAskCount": "Il numero totale di conversazioni non è disponibile per questo tipo di conversazione",
     "userChatTypeExpired": "Il periodo di validità di questo tipo di conversazione è scaduto, contatta l'amministratore per aumentarne la durata",
     "userNotAllowToAskAtThisTime": "Le domande non sono consentite nell'attuale periodo di tempo",
     "openai": {
@@ -220,7 +219,9 @@
       "unkown": "Errore sconosciuto di OpenAI, contatta l'amministratore"
     },
     "unknown": "errore sconosciuto",
-    "invalidRequest": "Richiesta non valida"
+    "invalidRequest": "Richiesta non valida",
+    "noAvailableModelAskCount": "Il numero rimanente di richieste disponibili per questo modello è 0. Si prega di contattare l'amministratore per aumentare il numero di utilizzi.",
+    "noAvailableTotalAskCount": "Il numero totale di conversazioni è 0. Si prega di contattare l'amministratore per aumentare il numero di conversazioni."
   },
   "tips": {
     "loginExpired": "Accesso scaduto. Vuoi andare alla pagina di accesso?",
@@ -364,7 +365,7 @@
       "gpt_4_browsing": "Un modello sperimentale che sa quando e come navigare in Internet.",
       "gpt_4_plugins": "Un modello sperimentale che sa quando e come utilizzare i plugin.",
       "gpt_4_mobile": "Versione mobile di GPT-4. Non consigliato da usare.",
-      "gpt_4_code_interpreter": "Un modello sperimentale in grado di risolvere compiti generando codice Python ed eseguendolo in un notebook Jupyter.\nPuoi caricare qualsiasi tipo di file e chiedere al modello di analizzarlo o produrre un nuovo file che puoi scaricare. ",
+      "gpt_4_code_interpreter": "Un modello sperimentale in grado di risolvere compiti generando codice Python ed eseguendolo in un notebook Jupyter.\nPuoi caricare qualsiasi tipo di file e chiedere al modello di analizzarlo o produrre un nuovo file che puoi scaricare.",
       "gpt_4_dalle": "Prova GPT-4 con DALL·E 3 per generare immagini da descrizioni di testo naturali."
     }
   },
