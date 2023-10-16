@@ -57,10 +57,12 @@ export function determineMessageType(group: BaseChatMessage[]): DisplayItemType 
 
   let displayType: DisplayItemType | null = null;
   for (const message of group) {
-    const metadata = message.metadata as OpenaiWebChatMessageMetadata;
-    if (message.role == 'assistant' && message.model == 'gpt_4_plugins' && metadata.recipient !== 'all') {
+    const metadata = message.metadata as OpenaiWebChatMessageMetadata | undefined;
+    if (message.role == 'assistant' && message.content?.content_type == 'text' && metadata?.recipient == 'all') {
+      displayType = 'text';
+    } else if (message.model == 'gpt_4_plugins') {
       displayType = 'plugin';
-    } else if (message.role == 'assistant' && message.model == 'gpt_4_browsing') {
+    } else if (message.model == 'gpt_4_browsing') {
       displayType = 'browser';
     } else if (message.content?.content_type == 'code') {
       displayType = 'code';
@@ -243,7 +245,7 @@ export async function getImageDownloadUrlFromFileServiceSchemaUrl(url: string | 
   }
 }
 
-export function splitPluginActions (messages: BaseChatMessage[]) {
+export function splitPluginActions(messages: BaseChatMessage[]) {
   const result = [] as PluginAction[];
   // 每两条 message 是一个完整的 action
   // request: role == 'assistant'
@@ -263,4 +265,3 @@ export function splitPluginActions (messages: BaseChatMessage[]) {
   }
   return result;
 }
-
