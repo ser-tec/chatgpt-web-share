@@ -56,13 +56,41 @@ export function determineMessageType(group: BaseChatMessage[]): DisplayItemType 
   }
 
   let displayType: DisplayItemType | null = null;
+  const textOrMultimodal = (message: BaseChatMessage) => {
+    if (message.content?.content_type == 'text') {
+      return 'text';
+    } else if (message.content?.content_type == 'multimodal_text') {
+      return 'multimodal_text';
+    }
+    return null;
+  };
+
   for (const message of group) {
     const metadata = message.metadata as OpenaiWebChatMessageMetadata | undefined;
     if (message.role == 'assistant' && message.content?.content_type == 'text' && metadata?.recipient == 'all') {
       displayType = 'text';
-    } else if (message.model == 'gpt_4_plugins') {
-      displayType = 'plugin';
-    } else if (message.model == 'gpt_4_browsing') {
+      break;
+    }
+    if (message.id.startsWith('temp_')) {
+      displayType = textOrMultimodal(message);
+      break;
+    }
+    if (message.role == 'user') {
+      displayType = textOrMultimodal(message);
+      break;
+    }
+    if (message.model == 'gpt_4_plugins') {
+      if (message.role == 'assistant') {
+        const metadata = message.metadata as OpenaiWebChatMessageMetadata | null;
+        if (metadata?.recipient !== 'all') {
+          displayType = 'plugin';
+        }
+      } else if (message.role == 'tool') {
+        displayType = 'plugin';
+      }
+      if (displayType) break;
+    } 
+    if (message.model == 'gpt_4_browsing') {
       displayType = 'browser';
     } else if (message.content?.content_type == 'code') {
       displayType = 'code';
@@ -76,10 +104,8 @@ export function determineMessageType(group: BaseChatMessage[]): DisplayItemType 
       displayType = 'dalle_prompt';
     } else if (message.author_name == 'dalle.text2im') {
       displayType = 'dalle_result';
-    } else if (message.content?.content_type == 'text') {
-      displayType = 'text';
-    } else if (message.content?.content_type == 'multimodal_text') {
-      displayType = 'multimodal_text';
+    } else {
+      displayType = textOrMultimodal(message);
     }
     if (displayType) break;
   }
@@ -91,7 +117,7 @@ export function determineMessageType(group: BaseChatMessage[]): DisplayItemType 
 export function buildTemporaryMessage(
   source: ChatSourceTypes,
   role: string,
-  text_content: string,
+  textContent: string,
   parent: string | undefined,
   model: string | undefined,
   openaiWebAttachments: OpenaiWebAskAttachment[] | null = null,
@@ -103,7 +129,7 @@ export function buildTemporaryMessage(
     source,
     content: {
       content_type: 'text',
-      parts: [text_content],
+      parts: [textContent],
     },
     role: role,
     parent, // 其实没有用到parent
@@ -118,7 +144,8 @@ export function buildTemporaryMessage(
   }
   if (openaiWebMultimodalImageParts) {
     result.content = {
-      parts: [...openaiWebMultimodalImageParts, text_content],
+      content_type: 'multimodal_text',
+      parts: [...openaiWebMultimodalImageParts, textContent],
     } as OpenaiWebChatMessageMultimodalTextContent;
   }
   return result;
@@ -134,7 +161,7 @@ export function modifiyTemporaryMessageContent(message: BaseChatMessage, textCon
     content.text = textContent;
     return content;
   } else if (message.source == 'openai_web') {
-    const content = message.content as OpenaiWebChatMessageTextContent;
+    const content = message.content as OpenaiWebChatMessageTextContent | OpenaiWebChatMessageMultimodalTextContent;
     content.parts = [textContent];
     return content;
   }
