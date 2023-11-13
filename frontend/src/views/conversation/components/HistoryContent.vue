@@ -22,6 +22,9 @@
           </template>
         </n-button>
       </div>
+      <div class="flex justify-center py-4 relative warning" :style="{ backgroundColor: themeVars.baseColor }">
+          {{ $t('commons.sensitiveinfowarning') }}
+      </div>
       <div
         v-if="convOpenaiWebPluginIds && convOpenaiWebPluginIds.length > 0"
         class="flex flex-row items-center justify-center pb-4 relative"
