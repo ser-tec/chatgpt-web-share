@@ -161,7 +161,7 @@
     "all": "全部",
     "uninstall": "卸载",
     "install": "安装",
-    "noPluginsAvailable": "获取插件列表失败，请检查是否设置 “openai_web.is_plus_account” 项为 true",
+    "noPluginsAvailable": "获取插件列表失败",
     "disable": "禁用",
     "enable": "启用",
     "enabled": "已启用",
@@ -180,7 +180,17 @@
     "updateTime": "更新时间",
     "expired": "已过期",
     "language": "界面语言",
-    "rememberPassword": "记住密码"
+    "rememberPassword": "记住密码",
+    "readFileResult": "阅读文件结果",
+    "myFileBrowser": "使用文件浏览器",
+    "content": "内容",
+    "executeCode": "执行代码",
+    "siteTitleFull": "ChatGPT Web Share",
+    "completionLogs": "对话日志",
+    "user": "用户",
+    "time": "时间",
+    "timeRange": "时间范围",
+    "limit": "限制"
   },
   "errors": {
     "403": "403 错误：无访问权限",
@@ -290,11 +300,13 @@
     "sandboxFileNotFound": "未找到文件 {0}，这可能是因为路径错误，或者是因为解释器已经过期。",
     "sandboxFileDownloadError": "文件下载错误",
     "dragFileHere": "点击或拖拽文件到此处以上传文件",
-    "fileUploadRequirements": "请不要上传含有敏感信息的文件；文件大小不应过大",
+    "fileUploadRequirements": "请不要上传含有敏感信息的文件；文件大小不大于512MB",
     "fileUploadSuccess": "文件 {0} 上传成功",
     "fileUploadFailed": "文件 {0} 上传失败",
     "dragImageHere": "拖拽图片到此处以上传",
-    "imageUploadRequirements": "最多能够上传4张图片"
+    "imageUploadRequirements": "最多能够上传4张图片",
+    "dragFileOrImageHere": "点击或拖拽任何文件到此处以上传",
+    "gpt4UploadingRequirements": "不超过10份文件或图片，每份文件不超过512MB；请确保文件不含敏感信息"
   },
   "labels": {
     "nickname": "昵称",
@@ -337,12 +349,15 @@
       "enabled_models": "启用的模型",
       "model_code_mapping": "模型代码映射",
       "file_upload_strategy": "文件上传策略"
-    }
+    },
+    "conversation_id": "对话ID",
+    "queueing_time": "排队时长",
+    "ask_time": "对话时长"
   },
   "models": {
     "gpt_3_5": "GPT-3.5",
     "gpt_3_5_mobile": "GPT-3.5 Mobile",
-    "gpt_4": "GPT-4",
+    "gpt_4": "GPT-4 All Tools",
     "gpt_4_browsing": "GPT-4 网页浏览",
     "gpt_4_plugins": "GPT-4 插件",
     "gpt_4_mobile": "GPT-4 Mobile",
@@ -357,7 +372,7 @@
     "openai_web": {
       "gpt_3_5": "最快的模型，非常适合大多数日常任务。",
       "gpt_3_5_mobile": "GPT-3.5的移动版。不推荐使用。",
-      "gpt_4": "最有能力的模型，非常适合需要创造力和高级推理的任务。所有用户将共享每 3 小时 50 条 GPT-4 消息的使用限制（包括所有 GPT-4）模型。",
+      "gpt_4": "浏览、高级数据分析和DALL·E现已集成于GPT-4中。所有用户将共享每 3 小时 50 条 GPT-4 消息的使用限制（包括所有 GPT-4）模型。",
       "gpt_4_browsing": "实验性模型，知道何时以及如何浏览网页来解决问题。",
       "gpt_4_plugins": "实验性模型，能够利用多种插件。",
       "gpt_4_mobile": "GPT-4的移动版。不推荐使用。",
@@ -376,7 +391,7 @@
   "desc": {
     "rate_limits": "定义用户在某时间间隔内最多能够发起多少次对话，优先级按照时间间隔从小到大计算。",
     "daily_available_time_slots": "仅允许在每天的这些时间段内使用，如果为空表示不限制。",
-    "openai_web_installed_plugins": "注意：只有在此处启用的插件，在使用GPT-4 Plugin时才能选择！",
+    "openai_web_installed_plugins": "注意：只有在此处启用或在官网安装的插件，在使用GPT-4 Plugin时才能选择！",
     "config": {
       "enabled_models": "设置全局启用哪些模型，在此处不启用的模型所有账号都无法使用",
       "file_upload_strategy": "配置使用 code interpreter 模型时文件如何上传，详见文档"

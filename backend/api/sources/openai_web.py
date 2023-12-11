@@ -8,7 +8,7 @@ import aiofiles
 import httpx
 from fastapi.encoders import jsonable_encoder
 import aiohttp
-from pydantic import parse_obj_as, ValidationError
+from pydantic import ValidationError
 
 from api.conf import Config, Credentials
 from api.enums import OpenaiWebChatModels, ChatSourceTypes
@@ -18,14 +18,14 @@ from api.models.doc import OpenaiWebChatMessageMetadata, OpenaiWebConversationHi
     OpenaiWebConversationHistoryMeta, OpenaiWebChatMessage, OpenaiWebChatMessageTextContent, \
     OpenaiWebChatMessageCodeContent, \
     OpenaiWebChatMessageTetherBrowsingDisplayContent, OpenaiWebChatMessageTetherQuoteContent, \
-    OpenaiWebChatMessageContent, \
     OpenaiWebChatMessageSystemErrorContent, OpenaiWebChatMessageStderrContent, \
     OpenaiWebChatMessageExecutionOutputContent, OpenaiWebChatMessageMultimodalTextContent, \
-    OpenaiWebChatMessageMultimodalTextContentImagePart
+    OpenaiWebChatMessageMultimodalTextContentImagePart, OpenaiWebChatMessageMetadataAttachment
 from api.models.json import UploadedFileOpenaiWebInfo
 from api.schemas.file_schemas import UploadedFileInfoSchema
-from api.schemas.openai_schemas import OpenaiChatPlugin, OpenaiChatPluginUserSettings, OpenaiChatFileUploadInfo, \
-    OpenaiChatFileUploadUrlResponse, OpenaiWebAskAttachment
+from api.schemas.openai_schemas import OpenaiChatPlugin, OpenaiChatPluginUserSettings, OpenaiChatFileUploadUrlRequest, \
+    OpenaiChatFileUploadUrlResponse, OpenaiWebCompleteRequest, \
+    OpenaiWebCompleteRequestConversationMode, OpenaiChatPluginListResponse
 from utils.common import singleton_with_lock
 from utils.logger import get_logger
 
@@ -34,7 +34,7 @@ credentials = Credentials()
 logger = get_logger(__name__)
 
 
-def convert_revchatgpt_message(item: dict, message_id: str = None) -> OpenaiWebChatMessage | None:
+def convert_openai_web_message(item: dict, message_id: str = None) -> OpenaiWebChatMessage | None:
     if not item.get("message"):
         return None
     if not item["message"].get("author"):
@@ -70,22 +70,24 @@ def convert_revchatgpt_message(item: dict, message_id: str = None) -> OpenaiWebC
         create_time=item["message"].get("create_time"),
         parent=item.get("parent"),
         children=item.get("children", []),
-        content=content,
-        metadata=OpenaiWebChatMessageMetadata(
-            source="openai_web",
-            weight=item["message"].get("weight"),
-            end_turn=item["message"].get("end_turn"),
-            recipient=item["message"].get("recipient"),
-            message_status=item["message"].get("status"),
-            fallback_content=fallback_content,
-        )
+        content=content
     )
+    metadata_dict = OpenaiWebChatMessageMetadata(
+        source="openai_web",
+        weight=item["message"].get("weight"),
+        end_turn=item["message"].get("end_turn"),
+        recipient=item["message"].get("recipient"),
+        message_status=item["message"].get("status"),
+        fallback_content=fallback_content,
+    ).model_dump(exclude_unset=True, exclude_none=True)
     if "metadata" in item["message"] and item["message"]["metadata"] != {}:
-        result.metadata = result.metadata.copy(
-            update=item["message"]["metadata"]
-        )
+        metadata_dict.update(item["message"]["metadata"])
+        metadata = OpenaiWebChatMessageMetadata.model_validate(metadata_dict)
+        result.metadata = metadata
         model_code = item["message"]["metadata"].get("model_slug")
         result.model = OpenaiWebChatModels.from_code(model_code) or model_code
+    else:
+        result.metadata = OpenaiWebChatMessageMetadata.model_validate(metadata_dict)
     return result
 
 
@@ -94,7 +96,7 @@ def convert_mapping(mapping: dict[uuid.UUID, dict]) -> dict[str, OpenaiWebChatMe
     if not mapping:
         return result
     for key, item in mapping.items():
-        message = convert_revchatgpt_message(item, str(key))
+        message = convert_openai_web_message(item, str(key))
         if message:
             result[key] = message
     return {str(key): value for key, value in result.items()}
@@ -212,7 +214,7 @@ class OpenaiWebChatManager:
             current_model = get_latest_model_from_mapping(result["current_node"], mapping)
         doc = OpenaiWebConversationHistoryDocument(
             source="openai_web",
-            id=conversation_id,
+            _id=conversation_id,
             title=result.get("title"),
             create_time=result.get("create_time"),
             update_time=result.get("update_time"),
@@ -234,33 +236,32 @@ class OpenaiWebChatManager:
         response = await self.session.patch(url, json={"is_visible": False})
         await _check_response(response)
 
-    async def ask(self, text_content: str, conversation_id: uuid.UUID = None, parent_id: uuid.UUID = None,
-                  model: OpenaiWebChatModels = None, plugin_ids: list[str] = None,
-                  attachments: list[OpenaiWebAskAttachment] = None,
-                  multimodal_image_parts: list[OpenaiWebChatMessageMultimodalTextContentImagePart] = None, **_kwargs):
+    async def complete(self, text_content: str, conversation_id: uuid.UUID = None, parent_message_id: uuid.UUID = None,
+                       model: OpenaiWebChatModels = None, plugin_ids: list[str] = None,
+                       attachments: list[OpenaiWebChatMessageMetadataAttachment] = None,
+                       multimodal_image_parts: list[OpenaiWebChatMessageMultimodalTextContentImagePart] = None,
+                       **_kwargs):
 
         assert config.openai_web.enabled, "OpenAI Web is not enabled"
 
         model = model or OpenaiWebChatModels.gpt_3_5
 
-        if conversation_id or parent_id:
-            assert parent_id and conversation_id, "parent_id must be set with conversation_id"
-        else:
-            parent_id = str(uuid.uuid4())
-
         if plugin_ids is not None and len(plugin_ids) > 0 and model != OpenaiWebChatModels.gpt_4_plugins:
             raise InvalidParamsException("plugin_ids can only be set when model is gpt-4-plugins")
 
-        if text_content == ":continue":
-            data = {
-                "action": "continue",
-                "conversation_id": str(conversation_id) if conversation_id else None,
-                "parent_message_id": str(parent_id) if parent_id else None,
-                "model": model.code(),
-                "timezone_offset_min": -480,
-                "history_and_training_disabled": False,
-            }
+        if plugin_ids is not None and len(plugin_ids) > 0 and parent_message_id:
+            raise InvalidParamsException("plugin_ids can only be set at new conversation")
+
+        if conversation_id or parent_message_id:
+            assert parent_message_id and conversation_id, "parent_message_id must be set with conversation_id"
         else:
+            parent_message_id = str(uuid.uuid4())
+
+        if text_content == ":continue":
+            messages = None
+            action = "continue"
+        else:
+            action = "next"
             if not multimodal_image_parts:
                 content = OpenaiWebChatMessageTextContent(
                     content_type="text", parts=[text_content]
@@ -282,24 +283,25 @@ class OpenaiWebChatManager:
             if attachments and len(attachments) > 0:
                 messages[0]["metadata"]["attachments"] = [attachment.dict() for attachment in attachments]
 
-            data = {
-                "action": "next",
-                "messages": messages,
-                "conversation_id": str(conversation_id) if conversation_id else None,
-                "parent_message_id": str(parent_id) if parent_id else None,
-                "model": model.code(),
-                "history_and_training_disabled": False,
-                "arkose_token": None
-            }
-        if plugin_ids and conversation_id is None:
-            data["plugin_ids"] = plugin_ids
-
         timeout = httpx.Timeout(Config().openai_web.common_timeout, read=Config().openai_web.ask_timeout)
+
+        completion_request = OpenaiWebCompleteRequest(
+            action=action,
+            arkose_token=None,
+            conversation_mode=OpenaiWebCompleteRequestConversationMode(kind="primary_assistant"),
+            conversation_id=str(conversation_id) if conversation_id else None,
+            messages=messages,
+            parent_message_id=str(parent_message_id) if parent_message_id else None,
+            model=model.code(),
+            plugin_ids=plugin_ids
+        ).dict(exclude_none=True)
+        completion_request["arkose_token"] = None
+        data_json = json.dumps(jsonable_encoder(completion_request))
 
         async with self.session.stream(
                 method="POST",
                 url=f"{config.openai_web.chatgpt_base_url}conversation",
-                data=json.dumps(data),
+                data=data_json,
                 timeout=timeout,
         ) as response:
             await _check_response(response)
@@ -348,23 +350,44 @@ class OpenaiWebChatManager:
         else:
             raise OpenaiWebException(f"Failed to generate title: {result.get('message')}")
 
-    async def get_plugin_manifests(self, statuses="approved", is_installed=None, offset=0, limit=250):
-        if not config.openai_web.is_plus_account:
-            raise InvalidParamsException("errors.notPlusChatgptAccount")
+    async def get_installed_plugin_manifests(self, offset=0, limit=250) -> OpenaiChatPluginListResponse:
         params = {
-            "statuses": statuses,
             "offset": offset,
             "limit": limit,
+            "is_installed": True,
         }
-        if is_installed is not None:
-            params["is_installed"] = is_installed
         response = await self.session.get(
             url=f"{config.openai_web.chatgpt_base_url}aip/p",
             params=params,
-            timeout=config.openai_web.ask_timeout
+            timeout=config.openai_web.common_timeout
         )
         await _check_response(response)
-        return parse_obj_as(list[OpenaiChatPlugin], response.json().get("items"))
+        return OpenaiChatPluginListResponse.model_validate(response.json())
+
+    async def get_plugin_manifests(self, offset=0, limit=8, category="", search="") -> OpenaiChatPluginListResponse:
+        if not config.openai_web.is_plus_account:
+            raise InvalidParamsException("errors.notPlusChatgptAccount")
+        params = {
+            "offset": offset,
+            "limit": limit,
+            "category": category,
+            "search": search,
+        }
+        response = await self.session.get(
+            url=f"{config.openai_web.chatgpt_base_url}aip/p/approved",
+            params=params,
+            timeout=config.openai_web.common_timeout
+        )
+        await _check_response(response)
+        return OpenaiChatPluginListResponse.model_validate(response.json())
+
+    # async def get_plugin_manifest(self, plugin_id: str) -> OpenaiChatPluginListResponse:
+    #     response = await self.session.get(
+    #         url=f"{config.openai_web.chatgpt_base_url}public/plugins/by-id",
+    #         params={"ids": plugin_id},
+    #     )
+    #     await _check_response(response)
+    #     return OpenaiChatPluginListResponse.parse_obj(response.json())
 
     async def change_plugin_user_settings(self, plugin_id: str, setting: OpenaiChatPluginUserSettings):
         if not config.openai_web.is_plus_account:
@@ -375,7 +398,7 @@ class OpenaiWebChatManager:
         )
         await _check_response(response)
         try:
-            result = OpenaiChatPlugin.parse_obj(response.json())
+            result = OpenaiChatPlugin.model_validate(response.json())
             return result
         except ValidationError as e:
             logger.warning(f"Failed to parse plugin: {e}")
@@ -413,7 +436,7 @@ class OpenaiWebChatManager:
             raise ResourceNotFoundException(
                 f"{conversation_id} Failed to get download url: {result.get('error_code')}({result.get('error_message')})")
 
-    async def get_file_upload_url(self, upload_info: OpenaiChatFileUploadInfo) -> OpenaiChatFileUploadUrlResponse:
+    async def get_file_upload_url(self, upload_info: OpenaiChatFileUploadUrlRequest) -> OpenaiChatFileUploadUrlResponse:
         """
         获取文件在 azure blob 的上传地址
         """
@@ -422,7 +445,7 @@ class OpenaiWebChatManager:
             json=upload_info.dict()
         )
         await _check_response(response)
-        result = OpenaiChatFileUploadUrlResponse.parse_obj(response.json())
+        result = OpenaiChatFileUploadUrlResponse.model_validate(response.json())
         if result.status != "success":
             raise OpenaiWebException(
                 f"{upload_info.file_name} Failed to get upload url from OpenAI: {result.error_code}({result.error_message})")
@@ -452,6 +475,8 @@ class OpenaiWebChatManager:
     async def upload_file_in_server(self, file_info: UploadedFileInfoSchema) -> UploadedFileOpenaiWebInfo:
         """
         将已上传到服务器上的文件上传到OpenAI Web
+
+        TODO 暂时无法使用，因为会被 Cloudflare 阻止
         """
 
         # 检查文件是否仍然存在
@@ -462,10 +487,10 @@ class OpenaiWebChatManager:
                 f"File {file_info.original_filename} ({file_info.id}) not exists. This may be caused by file cleanup.")
 
         # 获取 cdn 上传地址
-        upload_info = OpenaiChatFileUploadInfo(
+        upload_info = OpenaiChatFileUploadUrlRequest(
             file_name=file_info.original_filename,
             file_size=file_info.size,
-            use_case="ace_upload"
+            use_case="my_files"
         )
         upload_response = await self.get_file_upload_url(upload_info)
         upload_url = upload_response.upload_url  # 预签名的 azure 地址
@@ -473,12 +498,13 @@ class OpenaiWebChatManager:
         # 上传文件
         content_type = file_info.content_type or guess_type(file_info.original_filename)[
             0] or "application/octet-stream"
-        headers = {
+        headers = self.session.headers.copy()
+        headers.update({
             'x-ms-blob-type': 'BlockBlob',
             'Content-Type': content_type,
             'x-ms-version': '2020-04-08',
             'Origin': 'https://chat.openai.com',
-        }
+        })
         async with aiofiles.open(file_path, mode='rb') as file:
             content = await file.read()
         async with aiohttp.ClientSession() as session:

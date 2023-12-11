@@ -1,54 +1,13 @@
 <template>
   <div class="mb-4 flex flex-col">
     <n-tabs v-model:value="tab" type="segment">
-      <n-tab name="server">
-        {{ t('commons.serverLogs') }}
-      </n-tab>
-      <!-- <n-tab name="proxy">
-        {{ t('commons.proxyLogs') }}
-      </n-tab> -->
+      <n-tab-pane name="completions" :tab="t('commons.completionLogs')">
+        <CompletionLogContent />
+      </n-tab-pane>
+      <n-tab-pane name="server" :tab="t('commons.serverLogs')">
+        <ServerLogContent />
+      </n-tab-pane>
     </n-tabs>
-    <!-- 设置 -->
-    <div class="flex flex-row mt-3 justify-between">
-      <div class="flex flex-wrap flex-row sm:space-x-3">
-        <div class="option-item">
-          <n-text>{{ t('commons.maxLineCount') }}</n-text>
-          <n-input-number
-            v-model:value="maxLineCount"
-            size="small"
-            class="w-27"
-            :min="100"
-            :max="2000"
-            :step="100"
-          />
-        </div>
-        <div class="option-item">
-          <n-text>{{ t('commons.updateInterval') }}</n-text>
-          <n-select
-            v-model:value="refresh_duration"
-            size="small"
-            class="w-20"
-            :options="[
-              { label: '3s', value: 3 },
-              { label: '5s', value: 5 },
-              { label: '10s', value: 10 },
-            ]"
-          />
-        </div>
-        <div class="option-item">
-          <n-text>{{ t('commons.excludeKeywords') }}</n-text>
-          <n-dynamic-tags v-if="tab === 'proxy'" v-model:value="proxyExcludeKeywords" size="small" />
-          <n-dynamic-tags v-else v-model:value="serverExcludeKeywords" size="small" />
-        </div>
-      </div>
-      <div class="flex items-center space-x-2">
-        <n-text>{{ t('commons.autoScrolling') }}</n-text>
-        <n-switch v-model:value="enableAutoScroll" size="small" />
-      </div>
-    </div>
-    <n-card class="mt-3 flex-grow h-full" :content-style="{ height: '100%' }">
-      <n-log ref="logInstRef" :font-size="10" :rows="40" :lines="logsContent" />
-    </n-card>
   </div>
 </template>
 
@@ -56,12 +15,15 @@
 import { nextTick, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { getServerLogsApi } from '@/api/system';
+import { getServerLogsApi } from '@/api/logs';
 import { LogFilterOptions } from '@/types/schema';
+
+import CompletionLogContent from '../components/CompletionLogContent.vue';
+import ServerLogContent from '../components/ServerLogContent.vue';
 const { t } = useI18n();
 
 const refresh_duration = ref(5);
-const tab = ref<string>('server');
+const tab = ref<string>('completions');
 const logsContent = ref<Array<string>>();
 const enableAutoScroll = ref(true);
 const maxLineCount = ref(100);

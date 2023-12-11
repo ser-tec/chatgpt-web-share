@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 
 from api.database.custom_types import Pydantic, UTCDateTime, GUID
 from api.enums import OpenaiWebChatStatus, OpenaiWebChatModels, OpenaiApiChatModels, ChatSourceTypes
-from api.models.json import UploadedFileOpenaiWebInfo
+from api.models.json import UploadedFileOpenaiWebInfo, UploadedFileExtraInfo
 from api.schemas import UserSettingSchema, OpenaiWebSourceSettingSchema, OpenaiApiSourceSettingSchema
 
 
@@ -40,7 +40,8 @@ class User(Base):
     setting: Mapped["UserSetting"] = relationship("UserSetting", back_populates="user", lazy="joined",
                                                   cascade="save-update, merge, delete, delete-orphan")
     conversations: Mapped[List["BaseConversation"]] = relationship("BaseConversation", back_populates="user")
-    uploaded_files: Mapped[List["UploadedFileInfo"]] = relationship("UploadedFileInfo", back_populates="uploader")
+    uploaded_files: Mapped[List["UploadedFileInfo"]] = relationship("UploadedFileInfo", back_populates="uploader",
+                                                                    cascade="delete")  # TODO: 删除用户时，删除用户上传的文件
 
 
 class UserSetting(Base):
@@ -114,7 +115,8 @@ class UploadedFileInfo(Base):
                                                         comment="文件在服务器的存储路径，相对于配置中的存储路径；为空表示未在服务器上存储，即未上传或者已清理")
     upload_time: Mapped[datetime] = mapped_column(UTCDateTime(timezone=True), default=datetime.utcnow,
                                                   comment="上传日期")
-    uploader_id: Mapped[int] = mapped_column(ForeignKey("user.id"), comment="上传的用户id")
     openai_web_info: Mapped[Optional[UploadedFileOpenaiWebInfo]] = mapped_column(Pydantic(UploadedFileOpenaiWebInfo),
                                                                                  nullable=True)
+    extra_info: Mapped[Optional[dict]] = mapped_column(Pydantic(UploadedFileExtraInfo), nullable=True)
+    uploader_id: Mapped[int] = mapped_column(ForeignKey("user.id"), comment="上传的用户id")
     uploader: Mapped["User"] = relationship(back_populates="uploaded_files")

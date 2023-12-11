@@ -8,7 +8,7 @@ export type UserCreate = components['schemas']['UserCreate'];
 export type UserUpdate = components['schemas']['UserUpdate'];
 export type UserUpdateAdmin = components['schemas']['UserUpdateAdmin'];
 
-export type UserSettingSchema = components['schemas']['UserSettingSchema'];
+export type UserSettingSchema = components['schemas']['UserSettingSchema-Input'];
 export type OpenaiWebSourceSettingSchema = components['schemas']['OpenaiWebSourceSettingSchema'];
 export type OpenaiApiSourceSettingSchema = components['schemas']['OpenaiApiSourceSettingSchema'];
 export type TimeWindowRateLimit = components['schemas']['TimeWindowRateLimit'];
@@ -37,7 +37,7 @@ export type OpenaiWebChatMessageTetherQuoteContent = components['schemas']['Open
 export type OpenaiWebChatMessageSystemErrorContent = components['schemas']['OpenaiWebChatMessageSystemErrorContent'];
 export type OpenaiApiChatMessageTextContent = components['schemas']['OpenaiApiChatMessageTextContent'];
 export type OpenaiWebChatMessageMultimodalTextContentImagePart =
-  components['schemas']['OpenaiWebChatMessageMultimodalTextContentImagePart'];
+  components['schemas']['OpenaiWebChatMessageMultimodalTextContentImagePart-Input'];
 
 export type BaseChatMessage = components['schemas']['BaseChatMessage'];
 export type OpenaiApiChatMessage = components['schemas']['OpenaiApiChatMessage'];
@@ -56,8 +56,9 @@ export type OpenaiChatPluginCategory = components['schemas']['OpenaiChatPluginCa
 export type OpenaiChatPluginManifest = components['schemas']['OpenaiChatPluginManifest'];
 export type OpenaiChatPluginUserSettings = components['schemas']['OpenaiChatPluginUserSettings'];
 export type OpenaiChatPlugin = components['schemas']['OpenaiChatPlugin'];
+export type OpenaiChatPluginListResponse = components['schemas']['OpenaiChatPluginListResponse'];
 
-export type OpenaiChatFileUploadInfo = components['schemas']['OpenaiChatFileUploadInfo'];
+export type OpenaiChatFileUploadUrlRequest = components['schemas']['OpenaiChatFileUploadUrlRequest'];
 
 export type AskRequest = components['schemas']['AskRequest'];
 export type AskResponse = components['schemas']['AskResponse'];
@@ -65,15 +66,16 @@ export type AskResponse = components['schemas']['AskResponse'];
 export type SystemInfo = components['schemas']['SystemInfo'];
 export type RequestLogAggregation = components['schemas']['RequestLogAggregation'];
 export type AskLogAggregation = components['schemas']['AskLogAggregation'];
+export type AskLogDocument = components['schemas']['AskLogDocument'];
 
 export type LogFilterOptions = components['schemas']['LogFilterOptions'];
 
-export type ConfigModel = components['schemas']['ConfigModel'];
+export type ConfigModel = components['schemas']['ConfigModel-Input'];
 export type CredentialsModel = components['schemas']['CredentialsModel'];
 
 export type UploadedFileInfoSchema = components['schemas']['UploadedFileInfoSchema'];
+export type StartUploadRequestSchema = components['schemas']['StartUploadRequestSchema'];
 export type StartUploadResponseSchema = components['schemas']['StartUploadResponseSchema'];
-export type OpenaiWebAskAttachment = components['schemas']['OpenaiWebAskAttachment'];
 
 export const chatStatusMap = {
   asking: 'commons.askingChatStatus',

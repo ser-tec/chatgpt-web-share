@@ -160,12 +160,12 @@
     "all": "all",
     "disable": "disabled",
     "enable": "enable",
-    "enabled": "activated",
+    "enabled": "Installed",
     "install": "Install",
     "installed": "Installed",
     "most_popular": "most popular",
     "newly_added": "Add",
-    "noPluginsAvailable": "Failed to get the plugin list, please check whether the item \"openai_web.is_plus_account\" is set to true",
+    "noPluginsAvailable": "Failed to get plugin list",
     "pluginSettings": "OpenAI Web Plugin Settings",
     "uninstall": "uninstall",
     "expand": "expand",
@@ -179,7 +179,15 @@
     "remain": "Available Ask Count",
     "expired": "Expired",
     "language": "Language",
-    "rememberPassword": "Remember"
+    "rememberPassword": "Remember",
+    "myFileBrowser": "My File Browser",
+    "content": "Content",
+    "readFileResult": "Result",
+    "updateTime": "Update Time",
+    "executeCode": "Execute Code",
+    "siteTitleFull": "ChatGPT Web Share",
+    "completionLogs": "Completion Logs",
+    "time": "Time"
   },
   "errors": {
     "403": "403 error: access denied",
@@ -237,7 +245,7 @@
     "changeConversationTitleSuccess": "Title changed successfully",
     "changeConversationTitleFailed": "Failed to change title",
     "rename": "Please enter new title",
-    "sendMessage": "Please enter message, press {0} to send",
+    "sendMessage": "Press {0} to send",
     "logoutConfirm": "Are you sure you want to log out?",
     "pleaseEnterNickname": "Please enter nickname",
     "pleaseEnterEmail": "Please enter email",
@@ -255,8 +263,8 @@
     "vanishConversation": "Are you sure you want to destroy this conversation? It will be removed from the database and the records on the OpenAI account will be cleared.",
     "conversationTitle": "Enter conversation title, leave blank to use default title",
     "whetherUsePaidModel": "Please choose the model to use, leave blank to use default model",
-    "loadConversation": "Select a conversation from the left to load, or",
-    "newConversation": "start a new conversation",
+    "loadConversation": "Select a conversation from the menu, or",
+    "newConversation": "Start New Conversation",
     "loginSuccess": "Logged in successfully",
     "jumpingPage": "Jumping...",
     "terminated": "Connection terminated by the server",
@@ -286,14 +294,16 @@
       "leaveBlankToGenerateTitle": "Leave blank to automatically generate"
     },
     "openaiWebPluginsLengthMoreThan3": "The number of plugins cannot exceed 3",
-    "dragFileHere": "Click or drag file(s) here to upload",
+    "dragFileHere": "Click or drag files or images here to upload",
     "dragImageHere": "Drag image(s) here to upload",
-    "fileUploadRequirements": "Please do not upload files containing sensitive information; file size shouldn't be excessively large",
+    "fileUploadRequirements": "Please do not upload files containing sensitive information; file size should not be larger than 512MB",
     "fileUploadSuccess": "File {0} uploaded successfully",
     "fileUploadFailed": "File {0} upload failed",
     "imageUploadRequirements": "Up to 4 pictures can be uploaded",
     "sandboxFileDownloadError": "File download error",
-    "sandboxFileNotFound": "File {0} not found, either because the sandbox path is wrong or because the interpreter is expired."
+    "sandboxFileNotFound": "File {0} not found, either because the sandbox path is wrong or because the interpreter is expired.",
+    "dragFileOrImageHere": "Click or drag any file here to upload",
+    "gpt4UploadingRequirements": "No more than 10 files or images, each file no larger than 512MB. Please ensure the files do not contain sensitive information."
   },
   "labels": {
     "nickname": "Nickname",
@@ -336,12 +346,13 @@
       "enabled_models": "Enabled Models",
       "model_code_mapping": "Model Code Mapping",
       "file_upload_strategy": "File Upload Strategy"
-    }
+    },
+    "conversation_id": "Conversatin ID"
   },
   "models": {
     "gpt_3_5": "GPT-3.5",
     "gpt_3_5_mobile": "GPT-3.5 Mobile",
-    "gpt_4": "GPT-4",
+    "gpt_4": "GPT-4 All Tools",
     "gpt_4_mobile": "GPT-4 Mobile",
     "gpt_4_browsing": "GPT-4 Web Browsing",
     "gpt_4_plugins": "GPT-4 Plugins",
@@ -356,7 +367,7 @@
     "openai_web": {
       "gpt_3_5": "The fastest model, great for most everyday tasks.",
       "gpt_3_5_mobile": "Mobile version of GPT-3.5. Not recommend to use.",
-      "gpt_4": "The most capable model, great for tasks that require creativity and advanced reasoning. Relatively slow.",
+      "gpt_4": "Browsing, Advanced Data Analysis, and DALL-E are now built into GPT-4.",
       "gpt_4_browsing": "An experimental model that knows when and how to browse the internet.",
       "gpt_4_plugins": "An experimental model that knows when and how to use plugins.",
       "gpt_4_mobile": "Mobile version of GPT-4. Not recommend to use.",

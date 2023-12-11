@@ -5,6 +5,7 @@ from typing import TypeVar, Generic, Type, get_args
 
 from pydantic import BaseModel
 from ruamel.yaml import YAML
+from fastapi.encoders import jsonable_encoder
 
 from api.exceptions import ConfigException
 
@@ -16,12 +17,14 @@ class BaseConfig(Generic[T]):
     _config_path = None
     _model_type = None
 
-    def __init__(self, model_type: Type, config_filename: str, load_config: bool = True):
+    def __init__(self, model_type: Type[BaseModel], config_filename: str, load_config: bool = True):
         self._model_type = model_type
         config_dir = os.environ.get('CWS_CONFIG_DIR', './data/config')
         self._config_path = os.path.join(config_dir, config_filename)
         if load_config:
             self.load()
+        else:
+            self._model = self._model_type()
 
     def __getattr__(self, key):
         return getattr(self._model, key)
@@ -39,7 +42,7 @@ class BaseConfig(Generic[T]):
         return self._model.copy()
 
     def update(self, model: T):
-        self._model = self._model_type(**model.dict())
+        self._model = self._model_type.model_validate(model)
 
     def load(self):
         if not os.path.exists(self._config_path):
@@ -49,12 +52,11 @@ class BaseConfig(Generic[T]):
                 # 读取配置
                 yaml = YAML()
                 config_dict = yaml.load(f) or {}
-                self._model = self._model_type(**config_dict)
+                self._model = self._model_type.model_validate(config_dict)
         except Exception as e:
             raise ConfigException(f"Cannot read config ({self._config_path}), error: {str(e)}")
 
     def save(self):
-        from fastapi.encoders import jsonable_encoder
         config_dict = jsonable_encoder(self._model.dict())
         # 复制 self._config_path 备份一份
         config_dir = os.path.dirname(self._config_path)
@@ -65,11 +67,3 @@ class BaseConfig(Generic[T]):
         with open(self._config_path, mode='w', encoding='utf-8') as sf:
             yaml = YAML()
             yaml.dump(config_dict, sf)
-
-    def create(self, target_dir_path):
-        config_path = os.path.join(target_dir_path, f'{self.__class__.__name__.lower()}.yaml')
-        if os.path.exists(config_path):
-            raise ConfigException(f"Config file already exists: {config_path}")
-        with open(config_path, mode='w', encoding='utf-8') as f:
-            yaml = YAML()
-            yaml.dump(self._model_type().dict(), f)

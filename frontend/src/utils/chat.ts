@@ -113,7 +113,7 @@ export function getMessageListFromHistory(
 ): BaseChatMessage[] {
   const result: BaseChatMessage[] = [];
   if (!convHistory) return result;
-  let x = lastNode || convHistory.current_node || undefined;
+  let x = lastNode || convHistory.current_node || undefined as any;
   while (x != undefined) {
     const message = convHistory.mapping[x];
     if (message && message.content != undefined) {
@@ -231,9 +231,9 @@ export function getTextMessageContent(messages: BaseChatMessage[]) {
     else if (typeof message.content == 'string') result += message.content;
     else if (message.content.content_type == 'text') {
       let text = getContentRawText(message);
-      if (message.source == 'openai_web' && message.role === 'assistant' && message.model === 'gpt_4_browsing') {
+      if (message.source == 'openai_web' && message.role === 'assistant') {
         const metadata = message.metadata as OpenaiWebChatMessageMetadata;
-        if (metadata.citations && metadata.citations.length > 0) {
+        if (metadata?.citations && metadata.citations.length > 0) {
           let processedText = text;
           metadata.citations
             .sort((a, b) => {
@@ -278,9 +278,9 @@ export function replaceMathDelimiters(input: string) {
         const endMarker = isInline ? '\\)' : '\\]';
         const endPos = input.indexOf(endMarker, pos + 2);
         if (endPos >= 0) {
-          output += isInline ? '$' : '$$';
+          output += isInline ? '$' : '\n$$\n';
           output += input.substring(pos + 2, endPos).trim();
-          output += isInline ? '$' : '$$';
+          output += isInline ? '$' : '\n$$\n';
           pos = endPos + endMarker.length;
           continue;
         }
@@ -311,7 +311,7 @@ export function replaceMathDelimiters(input: string) {
     pos++;
   }
   // return output;
-  return output;
+  return output.replace(/\n\n\n+/g, '\n\n');
 }
 
 export function dompurifyRenderedHtml(html: string) {

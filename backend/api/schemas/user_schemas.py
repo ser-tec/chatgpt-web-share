@@ -2,7 +2,7 @@ import datetime
 from typing import Optional
 
 from fastapi_users import schemas
-from pydantic import BaseModel, EmailStr, validator, root_validator
+from pydantic import model_validator, ConfigDict, BaseModel, EmailStr, validator
 
 from api.conf import Config
 from api.enums import OpenaiWebChatStatus, OpenaiWebChatModels, OpenaiApiChatModels
@@ -14,7 +14,7 @@ config = Config()
 
 class BaseSourceSettingSchema(BaseModel):
     allow_to_use: bool
-    valid_until: Optional[datetime.datetime]  # None 表示永久有效
+    valid_until: Optional[datetime.datetime] = None  # None 表示永久有效
     max_conv_count: int
     total_ask_count: int
     rate_limits: list[TimeWindowRateLimit]
@@ -48,8 +48,9 @@ class BaseSourceSettingSchema(BaseModel):
 class OpenaiWebSourceSettingSchema(BaseSourceSettingSchema):
     available_models: list[OpenaiWebChatModels]
     per_model_ask_count: OpenaiWebPerModelAskCount
-    allow_uploading_attachments: bool
-    allow_uploading_multimodal_images: bool
+    disable_uploading: bool
+
+    model_config = ConfigDict(from_attributes=True)
 
     @staticmethod
     def default():
@@ -57,9 +58,8 @@ class OpenaiWebSourceSettingSchema(BaseSourceSettingSchema):
             available_models=[OpenaiWebChatModels(m) for m in
                               ["gpt_3_5", "gpt_4", "gpt_4_code_interpreter", "gpt_4_plugins", "gpt_4_browsing"]],
             per_model_ask_count=OpenaiWebPerModelAskCount(),
-            allow_uploading_attachments=config.openai_web.enable_uploading_attachments,
-            allow_uploading_multimodal_images=config.openai_web.enable_uploading_multimodal_images,
-            **BaseSourceSettingSchema.default().dict()
+            disable_uploading=False,
+            **BaseSourceSettingSchema.default().model_dump()
         )
 
     @staticmethod
@@ -67,21 +67,16 @@ class OpenaiWebSourceSettingSchema(BaseSourceSettingSchema):
         return OpenaiWebSourceSettingSchema(
             available_models=[OpenaiWebChatModels(m) for m in OpenaiWebChatModels],
             per_model_ask_count=OpenaiWebPerModelAskCount.unlimited(),
-            allow_uploading_attachments=True,
-            allow_uploading_multimodal_images=True,
-            **BaseSourceSettingSchema.unlimited().dict()
+            disable_uploading=False,
+            **BaseSourceSettingSchema.unlimited().model_dump()
         )
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def check(cls, values):
-        if "allow_uploading_attachments" not in values:
-            values["allow_uploading_attachments"] = config.openai_web.enable_uploading_attachments
-        if "allow_uploading_multimodal_images" not in values:
-            values["allow_uploading_multimodal_images"] = config.openai_web.enable_uploading_multimodal_images
+        if "disable_uploading" not in values:
+            values["disable_uploading"] = config.openai_web.disable_uploading
         return values
-
-    class Config:
-        orm_mode = True
 
 
 class OpenaiApiSourceSettingSchema(BaseSourceSettingSchema):
@@ -89,6 +84,8 @@ class OpenaiApiSourceSettingSchema(BaseSourceSettingSchema):
     per_model_ask_count: OpenaiApiPerModelAskCount
     allow_custom_openai_api: bool
     custom_openai_api_settings: CustomOpenaiApiSettings
+
+    model_config = ConfigDict(from_attributes=True)
 
     @staticmethod
     def default():
@@ -110,17 +107,16 @@ class OpenaiApiSourceSettingSchema(BaseSourceSettingSchema):
             custom_openai_api_settings=CustomOpenaiApiSettings()
         )
 
-    class Config:
-        orm_mode = True
-
 
 class UserSettingSchema(BaseModel):
-    id: int | None
-    user_id: int | None
+    id: int | None = None
+    user_id: int | None = None
     credits: float
     openai_web_chat_status: OpenaiWebChatStatus
     openai_web: OpenaiWebSourceSettingSchema
     openai_api: OpenaiApiSourceSettingSchema
+
+    model_config = ConfigDict(from_attributes=True)
 
     @staticmethod
     def default():
@@ -140,16 +136,13 @@ class UserSettingSchema(BaseModel):
             openai_api=OpenaiApiSourceSettingSchema.unlimited()
         )
 
-    class Config:
-        orm_mode = True
-
 
 class UserCreate(schemas.BaseUserCreate):
     username: str
     nickname: str
     email: EmailStr
-    avatar: str | None
-    remark: str | None
+    avatar: Optional[str] = None
+    remark: Optional[str] = None
     # setting: UserSettingSchema = UserSettingSchema.default()
 
 
@@ -160,23 +153,25 @@ class UserRead(schemas.BaseUser[int]):
     email: EmailStr
     last_active_time: datetime.datetime | None
     create_time: datetime.datetime
-    avatar: str | None
+    avatar: str | None = None
     is_superuser: bool
     is_active: bool
     is_verified: bool
     setting: UserSettingSchema
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class UserReadAdmin(UserRead):
-    remark: str | None
+    remark: str | None = None
 
 
 class UserUpdate(schemas.BaseUserUpdate):
-    nickname: str | None
-    email: str | None
-    avatar: str | None
+    nickname: str | None = None
+    email: str | None = None
+    avatar: str | None = None
 
 
 class UserUpdateAdmin(UserUpdate):
-    username: str | None
-    remark: str | None
+    username: str | None = None
+    remark: str | None = None

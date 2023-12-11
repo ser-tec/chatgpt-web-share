@@ -1,11 +1,11 @@
 <template>
   <div class="pr-4">
-    <v-chart class="h-35" :option="option" :loading="props.loading" />
+    <v-chart ref="chartRef" class="h-35" :option="option" :loading="props.loading" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { LineSeriesOption } from 'echarts';
+import { EChartsOption, LineSeriesOption } from 'echarts';
 import { LineChart } from 'echarts/charts';
 import {
   BrushComponent,
@@ -20,7 +20,7 @@ import {
 } from 'echarts/components';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
-import { computed, ref, watchEffect } from 'vue';
+import { computed, onMounted, ref, watchEffect } from 'vue';
 import VChart from 'vue-echarts';
 import { useI18n } from 'vue-i18n';
 
@@ -55,6 +55,8 @@ const props = defineProps<{
   users?: UserRead[];
 }>();
 
+const chartRef = ref<InstanceType<typeof VChart>>();
+
 const findUsername = (user_id: number) => {
   const user = props.users?.find((u) => u.id === user_id);
   return user?.username || user_id;
@@ -76,7 +78,7 @@ const datasetSource = computed(() => {
       if (!cur._id?.start_time) return acc;
       const timestamp = new Date(cur._id.start_time).getTime();
       const count = cur.count;
-      const userIds = cur.user_ids;
+      const userIds = cur.user_ids.filter((id) => id !== null) as number[];
       const key = timestamp.toString();
       if (acc[key]) {
         acc[key].count += count;
@@ -149,7 +151,7 @@ const gridBottom = computed(() => {
   return showDataZoom.value ? '35%' : '5%';
 });
 
-const option = computed(() => {
+const option = computed<EChartsOption>(() => {
   return {
     title: {
       text: t('commons.totalRequestsCount'),
@@ -229,9 +231,9 @@ const option = computed(() => {
         const data = el.data as any;
         return `<div>
                   <span>${timeFormatter(data.timestamp, true)} ~ ${timeFormatter(
-  new Date(data.timestamp).getTime() + props.requestStatsGranularity! * 1000,
-  true
-)}</span>
+          new Date(data.timestamp).getTime() + props.requestStatsGranularity! * 1000,
+          true
+        )}</span>
                   <br />
                   <span>${el.seriesName}: ${data.count}</span> <br />
                   <span>${t('commons.requestUsers')}: ${data.userIds.map((id: number) => findUsername(id))}</span>
@@ -267,7 +269,7 @@ const option = computed(() => {
     //     colorAlpha: 0.1
     //   },
     // },
-  };
+  } as EChartsOption;
 });
 
 watchEffect(() => {
@@ -277,5 +279,9 @@ watchEffect(() => {
   // console.log('datasetSource', datasetSource.value);
   // console.log('users', props.users)
   console.log('option', option.value);
+});
+
+onMounted(() => {
+  chartRef.value?.resize();
 });
 </script>

@@ -81,12 +81,12 @@
     <div class="mx-4 mb-4 flex flex-row space-x-2 items-center">
       <!-- 文件上传按钮 -->
       <n-badge
-        v-if="$props.uploadMode === 'attachments'"
-        :value="fileStore.attachments.uploadedFileInfos.length"
+        v-if="$props.uploadMode !== null"
+        :value="fileStore.uploadedFileInfos.length"
         :offset="[-6, 3]"
       >
         <n-button
-          v-if="$props.uploadMode === 'attachments'"
+          v-if="$props.uploadMode !== null"
           strong
           secondary
           circle
@@ -98,7 +98,7 @@
         </n-button>
       </n-badge>
       <!-- 图片上传按钮 -->
-      <n-badge
+      <!-- <n-badge
         v-else-if="$props.uploadMode === 'images'"
         :value="fileStore.images.uploadedFileInfos.length"
         :offset="[-6, 3]"
@@ -114,7 +114,7 @@
             <n-icon><MdImages /></n-icon>
           </template>
         </n-button>
-      </n-badge>
+      </n-badge> -->
       <n-input
         ref="inputRef"
         v-model:value="inputValue"
@@ -125,6 +125,7 @@
         :autosize="{ minRows: 1 }"
         :style="inputStyle"
         @keydown="shortcutSendMsg"
+        @paste="onPaste"
       >
         <template #suffix>
           <n-button
@@ -156,7 +157,6 @@
 </template>
 
 <script setup lang="ts">
-import { MdImages } from '@vicons/ionicons4';
 import { LogoMarkdown, Print, Send, Stop } from '@vicons/ionicons5';
 import {
   AttachFileFilled,
@@ -188,13 +188,32 @@ const props = defineProps<{
   sendDisabled: boolean;
   inputValue: string;
   autoScrolling: boolean;
-  uploadMode: 'images' | 'attachments' | null;
+  uploadMode: 'legacy_code_interpreter' | 'all' | null;
   uploadDisabled: boolean;
 }>();
 
 const sendDisabled = computed(() => {
   return props.sendDisabled || fileUploadRegionRef?.value?.isUploading;
 });
+
+const onPaste = (e: ClipboardEvent) => {
+  if (props.uploadMode === null || props.uploadDisabled) return;
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].kind !== 'file')
+      continue;
+    const file = items[i].getAsFile();
+    console.log('file', file);
+    if (!file) {
+      console.error('Failed to get the file from clipboard.', items[i]);
+      continue;
+    }
+    fileUploadRegionRef?.value?.addFile(file);
+    showFileUpload.value = true;
+    e.preventDefault();
+  }
+};
 
 const autoScrolling = computed({
   get() {

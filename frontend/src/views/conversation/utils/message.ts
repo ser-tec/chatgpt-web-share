@@ -5,9 +5,9 @@ import {
   ChatSourceTypes,
   OpenaiApiChatMessage,
   OpenaiApiChatMessageTextContent,
-  OpenaiWebAskAttachment,
   OpenaiWebChatMessage,
   OpenaiWebChatMessageMetadata,
+  OpenaiWebChatMessageMetadataAttachment,
   OpenaiWebChatMessageMetadataCiteData,
   OpenaiWebChatMessageMultimodalTextContent,
   OpenaiWebChatMessageMultimodalTextContentImagePart,
@@ -27,6 +27,7 @@ export type DisplayItemType =
   | 'multimodal_text'
   | 'dalle_prompt'
   | 'dalle_result'
+  | 'myfiles_browser'
   | null;
 
 export type DisplayItem = {
@@ -79,31 +80,29 @@ export function determineMessageType(group: BaseChatMessage[]): DisplayItemType 
       displayType = textOrMultimodal(message);
       break;
     }
-    if (message.model == 'gpt_4_plugins') {
-      if (message.role == 'assistant') {
-        const metadata = message.metadata as OpenaiWebChatMessageMetadata | null;
-        if (metadata?.recipient !== 'all') {
-          displayType = 'plugin';
-        }
-      } else if (message.role == 'tool') {
-        displayType = 'plugin';
-      }
+
+    if (message.role == 'assistant') {
+      // 根据 recipient 判断
+      const metadata = message.metadata as OpenaiWebChatMessageMetadata | null;
+      const recipient = metadata?.recipient;
+      if (recipient == 'browser') displayType = 'browser';
+      else if (recipient === 'dalle.text2im') displayType = 'dalle_prompt';
+      else if (recipient === 'myfiles_browser') displayType = 'myfiles_browser';
+      else if (recipient !== 'all' && message.model == 'gpt_4_plugins') displayType = 'plugin';
       if (displayType) break;
-    } 
-    if (message.model == 'gpt_4_browsing') {
-      displayType = 'browser';
-    } else if (message.content?.content_type == 'code') {
+
+    } else if (message.role == 'tool') {
+      if (message.author_name == 'browser') displayType = 'browser';
+      else if (message.author_name == 'dalle.text2im') displayType = 'dalle_result';
+      else if (message.author_name == 'myfiles_browser') displayType = 'myfiles_browser';
+      else displayType = 'plugin';
+      break;
+    }
+
+    if (message.content?.content_type == 'code') {
       displayType = 'code';
     } else if (message.content?.content_type == 'execution_output') {
       displayType = 'execution_output';
-    } else if (
-      message.role == 'assistant' &&
-      message.metadata?.source == 'openai_web' &&
-      message.metadata.recipient == 'dalle.text2im'
-    ) {
-      displayType = 'dalle_prompt';
-    } else if (message.author_name == 'dalle.text2im') {
-      displayType = 'dalle_result';
     } else {
       displayType = textOrMultimodal(message);
     }
@@ -120,21 +119,26 @@ export function buildTemporaryMessage(
   textContent: string,
   parent: string | undefined,
   model: string | undefined,
-  openaiWebAttachments: OpenaiWebAskAttachment[] | null = null,
+  openaiWebAttachments: OpenaiWebChatMessageMetadataAttachment[] | null = null,
   openaiWebMultimodalImageParts: OpenaiWebChatMessageMultimodalTextContentImagePart[] | null = null
 ) {
   const random_strid = Math.random().toString(36).substring(2, 16);
+  const content = source === 'openai_api' ? {
+    content_type: 'text',
+    text: textContent,
+  } : {
+    content_type: 'text',
+    parts: [textContent],
+  };
   const result = {
     id: `temp_${random_strid}`,
     source,
-    content: {
-      content_type: 'text',
-      parts: [textContent],
-    },
+    content,
     role: role,
     parent, // 其实没有用到parent
     children: [],
     model,
+    create_time: new Date().toISOString(),
   } as BaseChatMessage;
   if (openaiWebAttachments) {
     const metadata = {
@@ -261,7 +265,7 @@ export function processSandboxLinks(contentDiv: HTMLDivElement, conversationId: 
   });
 }
 
-export async function getImageDownloadUrlFromFileServiceSchemaUrl(url: string | undefined) {
+export async function getImageDownloadUrlFromFileServiceSchemaUrl(url: string | undefined | null) {
   if (!url || !url.startsWith('file-service://')) return null;
   try {
     const response = await getFileDownloadUrlApi(url.split('file-service://')[1]);
