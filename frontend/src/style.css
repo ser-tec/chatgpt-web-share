@@ -34,3 +34,11 @@ body {
   scrollbar-width: thin; /* Change the width of the scrollbar */
   scrollbar-color: #888 transparent; /* Set the scrollbar thumb color and make the track transparent */
 }
+
+.warning {
+  color: red;
+  background-color: #ffe5e5;
+  padding: 10px;
+  border: 1px solid #ff0000;
+  border-radius: 5px;
+}
